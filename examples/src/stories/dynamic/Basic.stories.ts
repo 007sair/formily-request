@@ -1,10 +1,30 @@
-/**
- * Basic
- */
+import type { Meta, StoryObj } from "@storybook/react";
 
-import type { Story } from "../Dynamic.stories";
+import DynamicSelect from ".";
 
-export const story_1: Story = {
+// More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
+const meta = {
+  title: "Example/Basic",
+  component: DynamicSelect,
+  parameters: {
+    // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
+    // layout: "centered",
+  },
+  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/react/writing-docs/autodocs
+  // tags: ["autodocs"],
+  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
+  argTypes: {
+    schema: { control: "object" },
+  },
+} satisfies Meta<typeof DynamicSelect>;
+
+export default meta;
+
+export type Story = StoryObj<typeof meta>;
+
+// More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
+export const Basic: Story = {
+  name: "basic",
   args: {
     schema: {
       type: "object",
@@ -12,6 +32,7 @@ export const story_1: Story = {
         basic_select: {
           type: "string",
           title: "基础下拉",
+          description: "根据回填数据查询下拉项",
           default: "经海路",
           "x-decorator": "FormItem",
           "x-component": "Select",
@@ -32,10 +53,21 @@ export const story_1: Story = {
           },
           "x-reactions": "{{ useAsyncDataSource }}",
         },
-        basic_select_default: {
+      },
+    },
+  },
+};
+
+export const Default: Story = {
+  name: "firstData",
+  args: {
+    schema: {
+      type: "object",
+      properties: {
+        select: {
           type: "string",
           title: "基础下拉",
-          description: "value初次默认展示下拉项第0项",
+          description: "默认展示第0个下拉项",
           default:
             "{{ $self.value ?? ($self.dataSource && $self.dataSource[0] ? $self.dataSource[0].id : null) }}",
           "x-decorator": "FormItem",
@@ -58,6 +90,17 @@ export const story_1: Story = {
           },
           "x-reactions": ["{{ useAsyncDataSource }}"],
         },
+      },
+    },
+  },
+};
+
+export const Search: Story = {
+  name: "search",
+  args: {
+    schema: {
+      type: "object",
+      properties: {
         search_select: {
           type: "string",
           title: "搜索下拉",
@@ -85,10 +128,22 @@ export const story_1: Story = {
           },
           "x-reactions": "{{ useAsyncDataSource }}",
         },
-        dropdown_select: {
+      },
+    },
+  },
+};
+
+export const Dropdown: Story = {
+  name: "onDropdownVisibleChange",
+  args: {
+    schema: {
+      type: "object",
+      properties: {
+        select: {
           type: "string",
           title: "下拉加载",
           default: "经海路",
+          description: "下拉项open时请求数据",
           "x-decorator": "FormItem",
           "x-component": "Select",
           "x-component-props": {

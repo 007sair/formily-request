@@ -24,6 +24,9 @@ export const queryAddress = (keyword: string) => {
     );
 };
 
+/**
+ * 级联下拉
+ */
 export const queryCascader = () => {
   return fetch("https://unpkg.com/china-location@2.1.0/dist/location.json")
     .then((res) => res.json())
@@ -42,12 +45,5 @@ export const customJsonp = (request: RequestConfig) => {
     output: "jsonp",
     ...params,
   });
-  return jsonp(`${request.url}?${str}`)
-    .then((res) => res.json())
-    .then((res: TencentRes) => {
-      return res.data?.map(({ address, id }) => ({
-        label: address,
-        value: id,
-      }));
-    });
+  return jsonp(`${request.url}?${str}`).then((res) => res.json());
 };

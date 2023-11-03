@@ -7,7 +7,8 @@
   "homepage": "https://github.com/007sair/formily-request",
   "scripts": {
     "build:lib": "pnpm run --parallel -F formily-request build --watch",
-    "storybook": "pnpm build:lib & pnpm run --parallel -F examples storybook"
+    "storybook": "pnpm build:lib & pnpm run --parallel -F examples storybook",
+    "deploy:storybook": "pnpm -F examples run deploy-storybook"
   },
   "keywords": [
     "formily",

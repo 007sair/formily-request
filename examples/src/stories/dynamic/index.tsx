@@ -11,7 +11,6 @@ import {
   Cascader,
 } from "@formily/antd-v5";
 import type { FormProps } from "@formily/antd-v5";
-import DynamicSelect from "./DynamicSelect";
 import AsyncSelect from "./AsyncSelect";
 import { useMemo } from "react";
 import { queryAddress, queryCascader, customJsonp } from "@/service";
@@ -22,7 +21,6 @@ const SchemaField = createSchemaField({
   components: {
     FormItem,
     Select,
-    DynamicSelect,
     Submit,
     Input,
     Radio,
