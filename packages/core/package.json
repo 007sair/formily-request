@@ -1,11 +1,15 @@
 {
   "name": "formily-request",
   "version": "0.0.1",
-  "description": "A tool that extends the ability of formily schema to fetch data dynamically.",
+  "description": "Flexible, lightweight, non-intrusive library that extends the ability of formily schema to fetch data.",
   "packageManager": "pnpm@8.10.0",
   "author": "Long Chan",
   "license": "MIT",
   "homepage": "https://github.com/007sair/formily-request",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/007sair/formily-request.git"
+  },
   "source": "./src/index.ts",
   "types": "./dist/index.d.ts",
   "type": "module",

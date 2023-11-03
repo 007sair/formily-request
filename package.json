@@ -1,15 +1,21 @@
 {
   "name": "formily-request-monorepo",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "Flexible, lightweight, non-intrusive library that extends the ability of formily schema to fetch data.",
+  "author": "Long Chan",
+  "license": "MIT",
+  "homepage": "https://github.com/007sair/formily-request",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build:lib": "pnpm run --parallel -F formily-request build --watch",
     "storybook": "pnpm build:lib & pnpm run --parallel -F examples storybook"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "formily",
+    "schema",
+    "request",
+    "fetch",
+    "dynamic"
+  ],
   "devDependencies": {
     "typescript": "^5.2.2"
   },
