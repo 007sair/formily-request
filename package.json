@@ -1,0 +1,22 @@
+{
+  "name": "formily-request-monorepo",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:lib": "pnpm run --parallel -F formily-request build --watch",
+    "storybook": "pnpm build:lib & pnpm run --parallel -F examples storybook"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@formily/antd-v5": "^1.1.2",
+    "@formily/core": "^2.2.27",
+    "@formily/react": "^2.2.27",
+    "@formily/reactive": "^2.2.27"
+  }
+}
