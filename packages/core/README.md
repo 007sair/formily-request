@@ -4,9 +4,9 @@
 
 formily-request 是一个灵活、轻量、无侵入性的扩展 formily schema 获取数据能力的库.
 
-[Demo Website](https://007sair.github.io/formily-request/)
+[Demo](https://007sair.github.io/formily-request/)
 
-[API](/docs//API.md)
+[API文档](/docs//API.md)
 
 ## 特性
 
