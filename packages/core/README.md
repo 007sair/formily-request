@@ -6,6 +6,8 @@ formily-request 是一个灵活、轻量、无侵入性的扩展 formily schema 
 
 [Demo Website](https://007sair.github.io/formily-request/)
 
+[API](/docs//API.md)
+
 ## 特性
 
 - 组件无关，不用写额外的自定义组件；
