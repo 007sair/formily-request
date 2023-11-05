@@ -41,6 +41,8 @@ export const Radio: Story = {
               params: {
                 keyword: "经海路",
               },
+              format:
+                "{{ (res) => res?.data.map(item => ({label: item.title, value: item.id})) || [] }}",
             },
           },
           "x-reactions": "{{ useAsyncDataSource }}",
@@ -68,6 +70,8 @@ export const Checkbox: Story = {
               params: {
                 keyword: "经海路",
               },
+              format:
+                "{{ (res) => res?.data.map(item => ({label: item.title, value: item.id})) || [] }}",
             },
           },
           "x-reactions": "{{ useAsyncDataSource }}",
