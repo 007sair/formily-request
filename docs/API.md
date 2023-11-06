@@ -63,7 +63,7 @@ interface RequestConfig extends RequestInit {
 
 ### `url`
 
-> 数据获取方式之一：会使用内部 simpleFetch(fetch简易封装)，优先级相较于另2种最低。
+> 数据获取方式之一：会使用内部 simpleFetch（fetch简易封装），优先级相较于其他方式最低。
 
 必填。接口地址，可以是绝对、相对地址。如果为相对，可配合 baseURL 一起使用。
 
@@ -129,7 +129,7 @@ request: {
 
 ### `service`
 
-> 数据获取方式之二：需将函数传入 scope 使用，有其他2种配置时优先级最高。
+> 数据获取方式之二：需将函数传入 scope 使用，相较于其他方式优先级最高。
 
 可选，获取接口数据的函数，该函数返回 Promise。当内置的 fetch 无法满足需求时，可使用业务系统自带的函数发起请求，如下：
 
