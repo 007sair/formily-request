@@ -64,21 +64,21 @@ interface RequestConfig extends RequestInit {
 }
 ```
 
-#### `url`
+### `url`
 
 必填。接口地址，可以是绝对、相对地址。如果为相对，可配合 baseURL 一起使用。
 
-#### `method`
+### `method`
 
 可选，默认值为 GET。
 
-#### `params`
+### `params`
 
 可选，与 url、method 一起使用时，params 需配置为 object；
 
 配合`request.service`使用时，如果 service 为函数名，params 将作为其参数使用。
 
-#### `format`
+### `format`
 
 可选，格式化函数，接口返回的数据可能无法直接应用，需要转换为组件可使用的数据。
 
@@ -88,11 +88,11 @@ interface RequestConfig extends RequestInit {
 formate: '{{ res => res?.data || [] }}'
 ```
 
-#### `baseURL`
+### `baseURL`
 
 可选，接口前缀。
 
-#### `staticParams`
+### `staticParams`
 
 可选，一般情况下用不上，当接口参数一部分来自 scope，一部分来自 schema，可使用该配置与 params 进行合并使用。
 
@@ -105,7 +105,7 @@ request: {
 }
 ```
 
-#### `service`
+### `service`
 
 可选，获取接口数据的函数，该函数返回 Promise。有 service 时使用 service，没有就使用内置的 fetch 发起请求。
 
@@ -122,11 +122,11 @@ request: {
 }
 ```
 
-#### `mountLoad`
+### `mountLoad`
 
 可选，字段 mount 时是否加载数据，默认为 true。
 
-#### `customService`
+### `customService`
 
 可选，自定义接口函数，参数为 request 配置，介于内置 fetch 与 service 之间的一种接口请求方式。
 
@@ -134,9 +134,13 @@ request: {
 - service 是除了使用 requst.params 外完全自定义的函数
 - customService 是使用 request 配置自定义的函数
 
-#### `debug`
+### `debug`
 
 可选，开启后会在控制台输出部分告警提示，方便排查问题。默认为 false
+
+### `onError`
+
+可选，用于配置接口异常处理，例如触发 `notification.error`，该配置通常用在使用内部 simpleFetch 时，simpleFetch 基于 fetch，需要手动处理错误，具体例子可参考：[storybook-onError](https://007sair.github.io/formily-request/?path=/story/example-onerror--url-error)
 
 ---
 
