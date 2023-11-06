@@ -6,7 +6,7 @@ formily-request 是一个灵活、轻量、无侵入性的扩展 formily schema 
 
 [Demo](https://007sair.github.io/formily-request/)
 
-[API 文档](/docs//API.md)
+[API 文档](https://github.com/007sair/formily-request/blob/main/docs/API.md)
 
 ## 特性
 
@@ -26,6 +26,8 @@ $ npm i formily-request @formily/reactive
 ### 使用
 
 在组件中，引入`formilyRequest`后，需要将 reactive 挂载到函数上，然后将返回的函数写到 scope 即可。
+
+[为什么需要挂载reactive?](https://github.com/007sair/formily-request/blob/main/docs/Q%26A.md#1%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%9C%A8%E5%A4%96%E9%83%A8%E6%8C%82%E8%BD%BD-formilyreactive)
 
 ```tsx
 // xxx/xx.tsx 部分代码省略
