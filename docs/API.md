@@ -1,15 +1,13 @@
-# formily-request API 文档
+# API 文档
 
-核心逻辑围绕`x-component-props.request`进行，通过 request 配置与 scope 函数加持，实现数据的动态获取。
+`formily-request` 核心围绕 `x-component-props.request` 配置进行，通过 request 与 scope 函数，实现数据的动态获取。
 
 API 分为两大部分：
 
-1. 核心函数：`formilyRender`
-2. schema 配置：`x-component-props.request`
+1. `formilyRender`：核心函数
+2. `x-component-props.request`：schema配置
 
 ## `formilyRequest`
-
-类型：
 
 ```tsx
 type StaticReactive = {
@@ -27,7 +25,8 @@ interface FormilyRequest {
 }
 ```
 
-用法：
+在传入 scope 前，可以将业务的全局配置传入到核心函数中，统一处理。由于schema配置是纯静态，如果需要处理运行时逻辑，可以放在该配置中。
+schema级别字段会覆盖掉该全局配置。用法：
 
 ```tsx
 import formilyRequest from "formily-request";
@@ -47,8 +46,6 @@ formilyRequest.reactive = { action, observe };
 
 ## `x-component-props.request`
 
-类型如下：
-
 ```tsx
 interface RequestConfig extends RequestInit {
   url: string;
@@ -66,31 +63,56 @@ interface RequestConfig extends RequestInit {
 
 ### `url`
 
+> 数据获取方式之一：会使用内部 simpleFetch(fetch简易封装)，优先级相较于另2种最低。
+
 必填。接口地址，可以是绝对、相对地址。如果为相对，可配合 baseURL 一起使用。
 
 ### `method`
 
-可选，默认值为 GET。
+可选，默认值为 GET。配合 url 使用。
 
 ### `params`
 
-可选，与 url、method 一起使用时，params 需配置为 object；
-
-配合`request.service`使用时，如果 service 为函数名，params 将作为其参数使用。
+可选，与 url、method 一起使用时，params 需配置为 object；与 `request.service` 使用时，如果 service 为函数名，params 将作为其参数使用。
 
 ### `format`
 
-可选，格式化函数，接口返回的数据可能无法直接应用，需要转换为组件可使用的数据。
+可选，接口数据格式化函数，接口返回的数据可能无法直接应用与组件，需要转换为可使用的数据格式。
 
-函数接口原始数据，返回新的数据。
+```js
+// res 为原始数据
+format: '{{ res => res?.data || [] }}'
+```
 
+format 接收的res，不关注来源，即目前三种获取数据的方式（内部simpleFetch、request.service、request.cunstomService）返回的结果都会经过format，然后被应用到 field.dataSource。
+
+所以，format还能扩展如下用法：
+
+```ts
+// 1.定义 format 前置函数，返回函数（函数入参为原始数据）
+const $beforeFormat = (format: RequestConfig["format"]) => {
+  return function (res: any) {
+    if (res.status !== 0) {
+      throw new Error("接口数据异常");
+    }
+    return format && format(res);
+  };
+};
+
+// 2.传入 scope
+const scope = {{ $beforeFormat }}
+
+// 3.在schema中应用
+format: "{{ $beforeFormat((res) => res?.data || []) }}"
 ```
-formate: '{{ res => res?.data || [] }}'
-```
+
+此时返回的res数据如果状态不是200，会抛出异常，配合onError使用可以给出ui错误提示。
+
+当然，如果接口请求方式是 service、customService，无需这样使用，其内部可以自行管理错误提示方式。
 
 ### `baseURL`
 
-可选，接口前缀。
+可选，接口前缀。配合 url 使用。
 
 ### `staticParams`
 
@@ -107,9 +129,9 @@ request: {
 
 ### `service`
 
-可选，获取接口数据的函数，该函数返回 Promise。有 service 时使用 service，没有就使用内置的 fetch 发起请求。
+> 数据获取方式之二：需将函数传入 scope 使用，有其他2种配置时优先级最高。
 
-当内置的 fetch 无法满足需求时，可使用业务系统自带的函数发起请求，如下：
+可选，获取接口数据的函数，该函数返回 Promise。当内置的 fetch 无法满足需求时，可使用业务系统自带的函数发起请求，如下：
 
 ```ts
 request: {
@@ -124,15 +146,19 @@ request: {
 
 ### `mountLoad`
 
-可选，字段 mount 时是否加载数据，默认为 true。
+可选，字段 mount 时是否加载数据，默认为 true。用于页面加载时是否自动请求一次。
 
 ### `customService`
 
-可选，自定义接口函数，参数为 request 配置，介于内置 fetch 与 service 之间的一种接口请求方式。
+> 数据获取方式之三：使用场景介于url、service之间。既要使用配置，又要有自定义。
 
-- fetch 是完全使用 request 配置发起请求
-- service 是除了使用 requst.params 外完全自定义的函数
-- customService 是使用 request 配置自定义的函数
+可选，自定义接口函数，参数为 request 配置，内部实现可基于入参自行实现，demo中自行实现了 jsonp 的接口请求。
+
+三种数据获取方式对比：
+
+- `内置fetch`：完全使用schema配置，无需自定义；
+- `service`：使用系统自带的函数，也可以配合 request.params 使用；
+- `customService`：完全自定义，使用了 request 配置，但内部完全自己实现的接口请求。
 
 ### `debug`
 
