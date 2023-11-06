@@ -15,7 +15,7 @@ export const simpleFetch = (
   const { url, baseURL, params, ...options } = config;
   const method = options.method || "GET";
 
-  if (typeof url !== "string") {
+  if (typeof url !== "string" || !url) {
     throw new TypeError("url must be required and of string type");
   }
 

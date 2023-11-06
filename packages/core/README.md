@@ -6,7 +6,7 @@ formily-request 是一个灵活、轻量、无侵入性的扩展 formily schema 
 
 [Demo](https://007sair.github.io/formily-request/)
 
-[API文档](/docs//API.md)
+[API 文档](/docs//API.md)
 
 ## 特性
 
@@ -14,7 +14,6 @@ formily-request 是一个灵活、轻量、无侵入性的扩展 formily schema 
 - 框架无关，不用关注是 vue 还是 react；
 - 组件库无关，不用关注是 antd 还是 element-plus；
 - 高扩展性，可用于 Select、Radio、Checkbox、Cascader 等任何动态数据的组件；
-- 小巧、使用方便，核心代码不过百余行，对外仅暴露一个函数；
 
 ## 入门使用
 

@@ -2,8 +2,9 @@ import merge from "lodash/merge";
 import debounce from "lodash/debounce";
 import type { ObjectParam, RequestConfig, FormilyRequest } from "./type";
 import { simpleFetch } from "./fetch";
+import type { FieldDataSource } from "@formily/core";
 
-const formilyRequest: FormilyRequest = (baseConfig) => {
+const formilyRequest: FormilyRequest = (baseConfig = {}) => {
   try {
     if (!formilyRequest.reactive) {
       throw new Error('函数缺少"reactive"属性');
@@ -11,13 +12,19 @@ const formilyRequest: FormilyRequest = (baseConfig) => {
     const { action, observe } = formilyRequest.reactive;
     return function (field) {
       const request = field.componentProps.request as RequestConfig; // 收集request依赖
+
+      if (!request) {
+        console.error('formilyRequest执行失败，缺少"request"配置');
+        return;
+      }
+
       const { format, debug = false, mountLoad = true } = request;
 
       /**
-       * 在antd的Select组件中，最终生成的options会受到属性fieldNames影响，不一定是label/value的格式
-       * 但options一定是数组
+       * 处理组件最终接收到的`dataSource`数据
+       * @link https://core.formilyjs.org/zh-CN/api/models/field#fielddatasource
        */
-      const getOptions = (data: unknown): any[] => {
+      const createDataSource = (data: unknown): FieldDataSource[] => {
         try {
           let _options = data;
           if (typeof format !== "undefined") {
@@ -33,32 +40,12 @@ const formilyRequest: FormilyRequest = (baseConfig) => {
           }
           return _options;
         } catch (error) {
-          debug && console.error(`"getOptions"抛出异常: ${error}`);
+          throw error;
         }
-        return [];
-      };
-
-      const mergeParams = (
-        params: RequestConfig["params"],
-        staticParams: RequestConfig["staticParams"]
-      ) => {
-        try {
-          if (typeof params !== "object") {
-            // 使用simpleFetch处理请求时，params类型必须为对象
-            throw new TypeError("配置项params此时必须为object");
-          }
-          if (typeof staticParams !== "object") {
-            return params;
-          }
-          return { ...staticParams, ...params };
-        } catch (err) {
-          debug && console.error(`mergeParams抛出异常,，${err}`);
-        }
-        return {};
       };
 
       const asyncLoader = (): any => {
-        const { params, staticParams } = request;
+        const { params = {}, staticParams = {} } = request;
         // 本着配置就近原则，如果field的配置中使用了service、customService
         // 应当只在field层级生效，不应该配置在全局
 
@@ -74,38 +61,41 @@ const formilyRequest: FormilyRequest = (baseConfig) => {
 
         // 使用内置的fetch时，可以使用一些全局配置，但不应过渡依赖
         // merge会对baseConfig突变，改变baseConfig的值
-        merge(baseConfig, request, {
-          params: mergeParams(params, staticParams),
-        });
+        merge(baseConfig, request, { params: merge(params, staticParams) });
+
         return simpleFetch(
           baseConfig as RequestConfig & { params: ObjectParam }
         );
       };
 
-      const loadData = () => {
+      const asyncSetDataSource = () => {
         try {
           field.loading = true;
           return asyncLoader()
             .then(
               action.bound?.((res: unknown) => {
-                field.dataSource = getOptions(res);
+                field.dataSource = createDataSource(res);
               })
             )
             .catch((err: any) => {
+              baseConfig.onError && baseConfig.onError(err);
               debug && console.error(`asyncLoader异步抛出异常，${err}`);
             })
             .finally(() => {
               field.loading = false;
             });
         } catch (err: any) {
-          debug && console.error(`loadData抛出异常，${err}`);
+          // 需要asyncLoader同步异常抛出的情况
+          // 同步异常一般是配置时出现错误，需要打debug查看
+          // 异步异常通常是接口错误，需要有ui界面查看
+          debug && console.error(`"asyncSetDataSource"抛出异常，${err}`);
         }
       };
 
-      const dispose = observe(request, debounce(loadData, 300));
+      const dispose = observe(request, debounce(asyncSetDataSource, 300));
 
       field.onMount = () => {
-        mountLoad && loadData();
+        mountLoad && asyncSetDataSource();
       };
 
       field.onUnmount = () => {
@@ -113,7 +103,7 @@ const formilyRequest: FormilyRequest = (baseConfig) => {
       };
     };
   } catch (error) {
-    console.error(`"useAsync"执行异常，${error}`);
+    console.error(`"formilyRequest"执行失败，${error}`);
   }
   return () => {};
 };
