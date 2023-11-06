@@ -1,6 +1,6 @@
 {
   "name": "formily-request",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Flexible, lightweight, non-intrusive library that extends the ability of formily schema to fetch data.",
   "packageManager": "pnpm@8.10.0",
   "author": "Long Chan",

@@ -35,7 +35,7 @@ const formilyRequest: FormilyRequest = (baseConfig = {}) => {
           }
           if (!Array.isArray(_options)) {
             throw new TypeError(
-              '下拉列表不是数组，请检查接口返回值或"format"配置'
+              'dataSource不是数组，请检查接口返回或"format"配置'
             );
           }
           return _options;
@@ -47,7 +47,7 @@ const formilyRequest: FormilyRequest = (baseConfig = {}) => {
       const asyncLoader = (): any => {
         const { params = {}, staticParams = {} } = request;
         // 本着配置就近原则，如果field的配置中使用了service、customService
-        // 应当只在field层级生效，不应该配置在全局
+        // 应当只在field层级生效，不应与全局配置混合使用，否则难以理解。
 
         // service仅在field层级生效
         if (typeof request.service === "function") {
@@ -59,7 +59,7 @@ const formilyRequest: FormilyRequest = (baseConfig = {}) => {
           return request.customService(request);
         }
 
-        // 使用内置的fetch时，可以使用一些全局配置，但不应过渡依赖
+        // 使用内置fetch时，可以使用一些全局配置，但不应过度依赖
         // merge会对baseConfig突变，改变baseConfig的值
         merge(baseConfig, request, { params: merge(params, staticParams) });
 
