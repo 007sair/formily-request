@@ -1,7 +1,7 @@
 import merge from "lodash/merge";
 import debounce from "lodash/debounce";
-import type { ObjectParam, RequestConfig, FormilyRequest } from "./type";
 import { simpleFetch } from "./fetch";
+import type { ObjectParam, RequestConfig, FormilyRequest } from "./type";
 import type { FieldDataSource } from "@formily/core";
 
 const formilyRequest: FormilyRequest = (baseConfig = {}) => {
@@ -44,7 +44,7 @@ const formilyRequest: FormilyRequest = (baseConfig = {}) => {
         }
       };
 
-      const asyncLoader = (): any => {
+      const asyncLoader = (): Promise<any> => {
         const { params = {}, staticParams = {} } = request;
         // 本着配置就近原则，如果field的配置中使用了service、customService
         // 应当只在field层级生效，不应与全局配置混合使用，否则难以理解。

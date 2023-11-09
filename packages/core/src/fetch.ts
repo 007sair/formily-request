@@ -12,7 +12,7 @@ function params2str(obj: ObjectParam) {
 export const simpleFetch = (
   config: RequestConfig & { params: ObjectParam }
 ) => {
-  const { url, baseURL, params, ...options } = config;
+  const { url, baseURL = "", params, ...options } = config;
   const method = options.method || "GET";
 
   if (typeof url !== "string" || !url) {

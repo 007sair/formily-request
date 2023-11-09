@@ -1,6 +1,6 @@
 {
   "name": "formily-request",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Flexible, lightweight, non-intrusive library that extends the ability of formily schema to fetch data.",
   "packageManager": "pnpm@8.10.0",
   "author": "Long Chan",
@@ -10,15 +10,21 @@
     "type": "git",
     "url": "https://github.com/007sair/formily-request.git"
   },
-  "source": "./src/index.ts",
-  "types": "./dist/index.d.ts",
-  "type": "module",
   "files": [
     "dist",
     "src"
   ],
-  "main": "./dist/index.js",
+  "type": "module",
+  "source": "./src/index.ts",
+  "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
