@@ -124,22 +124,16 @@ importers:
 
   packages/core:
     dependencies:
-      '@formily/react':
-        specifier: ^2.2.27
-        version: 2.3.0(@types/react-dom@18.2.14)(@types/react@18.2.34)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(typescript@5.2.2)
       '@formily/reactive':
         specifier: ^2.2.27
         version: 2.3.0
-      deepmerge:
-        specifier: ^4.3.1
-        version: 4.3.1
-      lodash:
-        specifier: ^4.17.21
-        version: r2.cnpmjs.org/lodash@4.17.21
+      lodash.debounce:
+        specifier: ^4.0.8
+        version: 4.0.8
     devDependencies:
-      '@types/lodash':
-        specifier: ^4.14.200
-        version: 4.14.200
+      '@types/lodash.debounce':
+        specifier: ^4.0.9
+        version: 4.0.9
       typescript:
         specifier: ^5.0.2
         version: 5.2.2
@@ -338,7 +332,7 @@ packages:
       '@babel/helper-compilation-targets': 7.22.15
       '@babel/helper-plugin-utils': 7.22.5
       debug: 4.3.4
-      lodash.debounce: r2.cnpmjs.org/lodash.debounce@4.0.8
+      lodash.debounce: 4.0.8
       resolve: 1.22.8
     transitivePeerDependencies:
       - supports-color
@@ -3992,6 +3986,12 @@ packages:
     resolution: {integrity: sha512-U3PUjAudAdJBeC2pgN8uTIKgxrb4nlDF3SF0++EldXQvQBGkpFZMSnwQiIoDU77tv45VgNkl/L4ouD+rEomujw==}
     dev: true
 
+  /@types/lodash.debounce@4.0.9:
+    resolution: {integrity: sha512-Ma5JcgTREwpLRwMM+XwBR7DaWe96nC38uCBDFKZWbNKD+osjVzdpnUSwBcqCptrp16sSOLBAUb50Car5I0TCsQ==}
+    dependencies:
+      '@types/lodash': 4.14.200
+    dev: true
+
   /@types/lodash@4.14.200:
     resolution: {integrity: sha512-YI/M/4HRImtNf3pJgbF+W6FrXovqj+T+/HpENLTooK9PnkacBsDpeP3IpHab40CClUfhNmdM2WTNP2sa2dni5Q==}
     dev: true
@@ -4823,11 +4823,6 @@ packages:
       which-collection: r2.cnpmjs.org/which-collection@1.0.1
       which-typed-array: 1.1.13
     dev: true
-
-  /deepmerge@4.3.1:
-    resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
-    engines: {node: '>=0.10.0'}
-    dev: false
 
   /defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
@@ -5686,6 +5681,9 @@ packages:
     dependencies:
       p-locate: 4.1.0
     dev: true
+
+  /lodash.debounce@4.0.8:
+    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
   /lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
@@ -9222,12 +9220,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       p-locate: r2.cnpmjs.org/p-locate@5.0.0
-    dev: true
-
-  r2.cnpmjs.org/lodash.debounce@4.0.8:
-    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==, registry: https://registry.npmjs.org/, tarball: https://r2.cnpmjs.org/lodash.debounce/-/lodash.debounce-4.0.8.tgz}
-    name: lodash.debounce
-    version: 4.0.8
     dev: true
 
   r2.cnpmjs.org/lodash.get@4.4.2:

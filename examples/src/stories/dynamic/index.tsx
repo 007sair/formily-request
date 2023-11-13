@@ -1,5 +1,5 @@
 import { createForm } from "@formily/core";
-import { ISchema, createSchemaField } from "@formily/react";
+import { Schema, ISchema, createSchemaField } from "@formily/react";
 import {
   Form,
   FormItem,
@@ -13,7 +13,7 @@ import {
 import type { FormProps } from "@formily/antd-v5";
 import { useMemo } from "react";
 import { queryAddress, queryCascader, customJsonp } from "@/service";
-import registerRequest, { RequestObject } from "formily-request";
+import fxr, { RequestObject } from "formily-request";
 import { notification } from "antd";
 
 const SchemaField = createSchemaField({
@@ -42,7 +42,7 @@ const $beforeFormat = (format: RequestObject["format"]) => {
   };
 };
 
-registerRequest({
+fxr.use(Schema).register({
   baseURL: import.meta.env.VITE_BASIC_API,
   params: {
     key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",

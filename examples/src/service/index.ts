@@ -36,7 +36,7 @@ export const queryAddress = (keyword: string) => {
  * 级联下拉
  */
 export const queryCascader = () => {
-  return fetch("https://unpkg.com/china-location@2.1.0/dist/location.json")
+  return fetch("https://unpkg.com/china-location/dist/location.json")
     .then((res) => res.json())
     .then((data) => transformAddress(data));
 };

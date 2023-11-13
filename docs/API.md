@@ -2,27 +2,53 @@
 
 `formily-request`通过注册自定义属性（默认为`x-request`），配置化的方式实现组件的数据获取。
 
-API 分为两大部分：
-
-1. `registerRequest`：默认注册函数；
-2. `x-request`：自定义属性，名称可通过注册函数自定义其他。
-
-## `registerRequest`
+包默认导出的是 FormilyRequest 的实例，使用方式如下：
 
 ```tsx
-import registerRequest from "formily-request";
+import fxr from "formily-request"; // fxr: formily-x-request
+
+fxr.use(Schema).register();
+
+// or
+fxr.use(Schema);
+fxr.register();
+```
+
+**注意：**`use(Schema)`必不可少，需要在 `register` 之前调用，缺失时 `register` 不会生效；
+
+API 分为如下几个部分
+
+1. `fxr.use()`：从外部传入 Schame 类，供内部使用；
+2. `fxr.register()`：实例需要先从外部使用`Schema`，再去注册自定义属性；
+3. `x-request`：自定义属性，名称可通过注册函数自定义其他；
+4. `field.invoke`：自定义事件，用于改变 request，触发接口请求。
+
+## `use()`
+
+```tsx
+import { Schema } from "@formily/react"; // or import { Schema } from '@formily/vue'
+import fxr from "formily-request";
+
+fxr.use(Schema);
+```
+
+由于 react 和 vue 有各自的 Schema 包依赖，插件内部不再导入 Schema，需要使用 use 从外部导入。
+
+## `register()`
+
+```tsx
+import fxr from "formily-request";
+
+fxr.register();
 
 // 使用方式1：不传任何参数，默认使用 "x-request" 作为自定义属性
-function registerRequest(): void;
+function register(): void;
 // 方式2：自定义属性名称，例如: "x-fetch"，建议使用 "x-" 开头的命名规范
-function registerRequest(fieldKey: `x-${string}`): void;
+function register(fieldKey: `x-${string}`): void;
 // 方式3：传入全局配置
-function registerRequest(baseConfig: RequestConfig): void;
+function register(baseConfig: RequestConfig): void;
 // 方式4：自定义属性 + 全局配置
-function registerRequest(
-  fieldKey: `x-${string}`,
-  baseConfig: RequestConfig
-): void;
+function register(fieldKey: `x-${string}`, baseConfig: RequestConfig): void;
 ```
 
 该函数可以运行在组件外，当需要依赖组件状态时，可以像使用 `createForm()` 一样在组件内使用。
@@ -154,18 +180,27 @@ request: {
 
 ---
 
-## 场景举例
-
-#### 场景 1：反向代理动态配置
-
-在有接口使用 proxy 的项目中，本地开发时一般会使用`/api`作为反向代理前缀，而线上环境如果没有配置 Nginx，会根据环境变量将前缀换为 http 开头。由于这是一个动态的配置，在 schema 中无法配置，可通过全局配置实现：
+## 自定义事件
 
 ```tsx
-formilyRender({
-  baseURL: import.meta.env.VITE_BASIC_API,
-});
+$self.invoke("updateRequest", callback);
 ```
 
-#### 场景 2：全局参数
+在 field 字段上注入了 `updateRequest` 事件，该事件的入参为`callback`函数。参数类型如下：
 
-当业务系统中的接口入参需要固化、运行时变更时，可在全局配置。
+```tsx
+(request: RequetObject) => void
+```
+
+在函数体可以修改 request 配置项。
+
+常用于 Select 组件的 onSearch 方法中：
+
+```json
+{
+  "x-component": "Select",
+  "x-component-props": {
+    "onSearch": "{{ str => $self.invoke('updateRequest', r => r.params.keyword = str) }}"
+  }
+}
+```
