@@ -2,10 +2,11 @@
 
 `formily-request`通过注册自定义属性（默认为`x-request`），配置化的方式实现组件的数据获取。
 
-API 分为两大部分：
+API 分为三部分：
 
 1. `registerRequest`：默认注册函数；
 2. `x-request`：自定义属性，名称可通过注册函数自定义其他。
+3. `field.invoke`：自定义事件，用于改变 request，触发接口请求；
 
 ## `registerRequest`
 
@@ -154,18 +155,27 @@ request: {
 
 ---
 
-## 场景举例
-
-#### 场景 1：反向代理动态配置
-
-在有接口使用 proxy 的项目中，本地开发时一般会使用`/api`作为反向代理前缀，而线上环境如果没有配置 Nginx，会根据环境变量将前缀换为 http 开头。由于这是一个动态的配置，在 schema 中无法配置，可通过全局配置实现：
+## 自定义事件
 
 ```tsx
-formilyRender({
-  baseURL: import.meta.env.VITE_BASIC_API,
-});
+$self.invoke("updateRequest", callback);
 ```
 
-#### 场景 2：全局参数
+在 field 字段上注入了 `updateRequest` 事件，该事件的入参为`callback`函数。参数类型如下：
 
-当业务系统中的接口入参需要固化、运行时变更时，可在全局配置。
+```tsx
+(request: RequetObject) => void
+```
+
+在函数体可以修改 request 配置项。
+
+常用于 Select 组件的 onSearch 方法中：
+
+```json
+{
+  "x-component": "Select",
+  "x-component-props": {
+    "onSearch": "{{ str => $self.invoke('updateRequest', r => r.params.keyword = str) }}"
+  }
+}
+```

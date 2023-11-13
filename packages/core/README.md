@@ -54,7 +54,7 @@ export default () => {
 };
 ```
 
-### 进阶
+### 使用方式
 
 为满足不同的使用需求，x-request 提供了 3 种配置方式：
 
@@ -141,3 +141,29 @@ const queryUser = (requestConfig: RequestObject) => {
 ```
 
 如果同时配置了以上 3 种方式，优先级为 `customService` > `service` > `内置 fetch`。
+
+### 联动
+
+目前已获知的联动场景如下：
+
+- `Select`组件的`onSearch`事件会触发接口的二次请求；
+- 其他字段与当前字段的联动，如：省市区；
+
+省市区的联动比较简单，给当前字段增加 `$values.xxx` 即可，这里主要讲一下 `onSearch` 主动触发场景：
+
+```ts
+{
+  "x-component": "Select",
+  "x-component-props": {
+    onSearch: '{{ str => $self.invoke("updateRequest", r => r.params.keyword = str) }}'
+  },
+  "x-request": {
+    "url": "",
+    "params": { keyword: "" }
+  }
+}
+```
+
+上面代码的原理是在 formily-request 内给 field 字段注入了 `updateRequest` 自定义事件，该事件要求接收 1 个函数入参: callback，callback 的参数为 request 配置。
+
+对于 Select 组件的搜索场景，可以参考 demo：[example-basic-jsonp--search](https://007sair.github.io/formily-request/?path=/story/example-basic-jsonp--search)

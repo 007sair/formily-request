@@ -165,7 +165,6 @@ export const Dropdown: Story = {
             mountLoad: false,
             customService: "{{ customJsonp }}",
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
         },
       },
     },
