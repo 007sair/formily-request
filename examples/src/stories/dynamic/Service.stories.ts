@@ -38,11 +38,10 @@ export const Basic: Story = {
           "x-component": "Select",
           "x-component-props": {
             placeholder: "请选择下拉项",
-            request: {
-              service: "{{ () => queryAddress($self.initialValue) }}",
-            },
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            service: "{{ () => queryAddress($self.initialValue) }}",
+          },
         },
       },
     },
@@ -63,15 +62,15 @@ export const Default: Story = {
           "x-component": "Select",
           "x-component-props": {
             placeholder: "请选择下拉项",
-            request: {
-              service: "{{ queryAddress }}",
-              params: "",
-            },
             showSearch: true,
             filterOption: false,
-            onSearch: "{{ str => $self.componentProps.request.params = str }}",
+            onSearch:
+              "{{ str => $self.invoke('updateRequest', request => request.params = str) }}",
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            service: "{{ queryAddress }}",
+            params: "",
+          },
         },
       },
     },

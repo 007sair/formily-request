@@ -6,12 +6,21 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
-      name: "FormilyAsync",
+      name: "FormilyRequest",
       formats: ["es", "umd"],
       fileName: "index",
     },
     sourcemap: true,
     target: "es2015",
+    rollupOptions: {
+      external: ["@formily/reactive", "@formily/react"],
+      output: {
+        globals: {
+          "@formily/reactive": "FormilyReactive",
+          "@formily/react": "FormilyReact",
+        },
+      },
+    },
   },
   plugins: [dts({ rollupTypes: true })],
 });

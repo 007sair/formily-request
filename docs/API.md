@@ -1,50 +1,33 @@
 # API 文档
 
-`formily-request` 核心围绕 `x-component-props.request` 配置进行，通过 request 与 scope 函数，实现数据的动态获取。
+`formily-request`通过注册自定义属性（默认为`x-request`），配置化的方式实现组件的数据获取。
 
 API 分为两大部分：
 
-1. `formilyRender`：核心函数
-2. `x-component-props.request`：schema配置
+1. `registerRequest`：默认注册函数；
+2. `x-request`：自定义属性，名称可通过注册函数自定义其他。
 
-## `formilyRequest`
-
-```tsx
-type StaticReactive = {
-  action: IAction;
-  observe: (
-    target: object,
-    observer?: (change: DataChange) => void,
-    deep?: boolean
-  ) => () => void;
-} | null;
-
-interface FormilyRequest {
-  reactive: StaticReactive;
-  (baseConfig: Partial<RequestConfig>): (field: Field) => void;
-}
-```
-
-在传入 scope 前，可以将业务的全局配置传入到核心函数中，统一处理。由于schema配置是纯静态，如果需要处理运行时逻辑，可以放在该配置中。
-schema级别字段会覆盖掉该全局配置。用法：
+## `registerRequest`
 
 ```tsx
-import formilyRequest from "formily-request";
+import registerRequest from "formily-request";
 
-import { action, observe } from "@formily/reactive";
-import formilyRequest from "formily-request";
-
-// 将响应式相关函数挂载到函数上
-formilyRequest.reactive = { action, observe };
-
-<SchemaField scope={{ useAsyncDataSource: formilyRequest(baseConfig) }} />;
+// 使用方式1：不传任何参数，默认使用 "x-request" 作为自定义属性
+function registerRequest(): void;
+// 方式2：自定义属性名称，例如: "x-fetch"，建议使用 "x-" 开头的命名规范
+function registerRequest(fieldKey: `x-${string}`): void;
+// 方式3：传入全局配置
+function registerRequest(baseConfig: RequestConfig): void;
+// 方式4：自定义属性 + 全局配置
+function registerRequest(
+  fieldKey: `x-${string}`,
+  baseConfig: RequestConfig
+): void;
 ```
 
-由于函数内部依赖 `@formily/reactive`，目前采用函数挂载静态属性的方式在内部使用依赖。
+该函数可以运行在组件外，当需要依赖组件状态时，可以像使用 `createForm()` 一样在组件内使用。
 
-`baseConfig`为全局配置，类型同 request 配置，发起请求时使用的配置为合并后的配置，全局配置会被局部配置覆盖。
-
-## `x-component-props.request`
+## `x-request`
 
 ```tsx
 interface RequestConfig extends RequestInit {
@@ -58,12 +41,13 @@ interface RequestConfig extends RequestInit {
   mountLoad?: boolean;
   customService?: (config: RequestConfig) => Promise<unknown>;
   debug?: boolean;
+  onError: (err: any) => void;
 }
 ```
 
 ### `url`
 
-> 数据获取方式之一：会使用内部 simpleFetch（fetch简易封装），优先级相较于其他方式最低。
+> 数据获取方式之一：会使用内部 simpleFetch（fetch 简易封装），优先级相较于其他方式最低。
 
 必填。接口地址，可以是绝对、相对地址。如果为相对，可配合 baseURL 一起使用。
 
@@ -81,12 +65,12 @@ interface RequestConfig extends RequestInit {
 
 ```js
 // res 为原始数据
-format: '{{ res => res?.data || [] }}'
+format: "{{ res => res?.data || [] }}";
 ```
 
-format 接收的res，不关注来源，即目前三种获取数据的方式（内部simpleFetch、request.service、request.cunstomService）返回的结果都会经过format，然后被应用到 field.dataSource。
+format 接收的 res，不关注来源，即目前三种获取数据的方式（内部 simpleFetch、request.service、request.cunstomService）返回的结果都会经过 format，然后被应用到 field.dataSource。
 
-所以，format还能扩展如下用法：
+所以，format 还能扩展如下用法：
 
 ```ts
 // 1.定义 format 前置函数，返回函数（函数入参为原始数据）
@@ -106,7 +90,7 @@ const scope = {{ $beforeFormat }}
 format: "{{ $beforeFormat((res) => res?.data || []) }}"
 ```
 
-此时返回的res数据如果状态不是200，会抛出异常，配合onError使用可以给出ui错误提示。
+此时返回的 res 数据如果状态不是 200，会抛出异常，配合 onError 使用可以给出 ui 错误提示。
 
 当然，如果接口请求方式是 service、customService，无需这样使用，其内部可以自行管理错误提示方式。
 
@@ -150,13 +134,13 @@ request: {
 
 ### `customService`
 
-> 数据获取方式之三：使用场景介于url、service之间。既要使用配置，又要有自定义。
+> 数据获取方式之三：使用场景介于 url、service 之间。既要使用配置，又要有自定义。
 
-可选，自定义接口函数，参数为 request 配置，内部实现可基于入参自行实现，demo中自行实现了 jsonp 的接口请求。
+可选，自定义接口函数，参数为 request 配置，内部实现可基于入参自行实现，demo 中自行实现了 jsonp 的接口请求。
 
 三种数据获取方式对比：
 
-- `内置fetch`：完全使用schema配置，无需自定义；
+- `内置fetch`：完全使用 schema 配置，无需自定义；
 - `service`：使用系统自带的函数，也可以配合 request.params 使用；
 - `customService`：完全自定义，使用了 request 配置，但内部完全自己实现的接口请求。
 

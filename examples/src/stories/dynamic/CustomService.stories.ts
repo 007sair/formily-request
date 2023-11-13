@@ -36,14 +36,6 @@ export const Basic: Story = {
           "x-component": "Select",
           "x-component-props": {
             placeholder: "请输入",
-            request: {
-              customService: "{{ customJsonp }}",
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: {
-                keyword: "",
-              },
-              format: "{{ (res) => res?.data || [] }}",
-            },
             fieldNames: {
               label: "title",
               value: "id",
@@ -51,9 +43,16 @@ export const Basic: Story = {
             showSearch: true,
             filterOption: false,
             onSearch:
-              "{{ str => $self.componentProps.request.params.keyword = str }}",
+              "{{ str => $self.invoke('updateRequest', request => request.params.keyword = str) }}",
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            customService: "{{ customJsonp }}",
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: {
+              keyword: "",
+            },
+            format: "{{ (res) => res?.data || [] }}",
+          },
         },
       },
     },

@@ -1,7 +1,7 @@
 {
   "name": "formily-request-monorepo",
-  "version": "0.1.0",
-  "description": "Flexible, lightweight, non-intrusive library that extends the ability of formily schema to fetch data.",
+  "version": "0.1.4",
+  "description": "A flexible, lightweight, non-intrusive plugin for extending formily schema request data.",
   "author": "Long Chan",
   "license": "MIT",
   "homepage": "https://github.com/007sair/formily-request",

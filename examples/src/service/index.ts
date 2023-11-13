@@ -8,6 +8,8 @@ import type { RequestConfig } from "formily-request";
  */
 type TencentRes = {
   data?: Array<{ address: string; id: string }>;
+  status: number;
+  message: string;
 };
 
 export const queryAddress = (keyword: string) => {
@@ -19,9 +21,15 @@ export const queryAddress = (keyword: string) => {
   });
   return jsonp(`https://apis.map.qq.com/ws/place/v1/suggestion?${str}`)
     .then((res) => res.json())
-    .then((res: TencentRes) =>
-      res.data?.map(({ address, id }) => ({ label: address, value: id }))
-    );
+    .then((res: TencentRes) => {
+      if (res.status !== 0) {
+        throw new Error(res.message);
+      }
+      return res.data?.map(({ address, id }) => ({
+        label: address,
+        value: id,
+      }));
+    });
 };
 
 /**

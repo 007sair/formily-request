@@ -39,20 +39,19 @@ export const Basic: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: {
-                keyword: "{{ $self.initialValue }}",
-              },
-              format: "{{ (res) => res?.data || [] }}",
-              customService: "{{ customJsonp }}",
-            },
             fieldNames: {
               label: "title",
               value: "id",
             },
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: {
+              keyword: "{{ $self.initialValue }}",
+            },
+            format: "{{ (res) => res?.data || [] }}",
+            customService: "{{ customJsonp }}",
+          },
         },
       },
     },
@@ -76,21 +75,20 @@ export const Default: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: {
-                key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
-                keyword: "经海路",
-              },
-              format: "{{ (res) => res?.data || [] }}",
-              customService: "{{ customJsonp }}",
-            },
             fieldNames: {
               label: "title",
               value: "id",
             },
           },
-          "x-reactions": ["{{ useAsyncDataSource }}"],
+          "x-request": {
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: {
+              key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
+              keyword: "经海路",
+            },
+            format: "{{ (res) => res?.data || [] }}",
+            customService: "{{ customJsonp }}",
+          },
         },
       },
     },
@@ -111,15 +109,6 @@ export const Search: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: {
-                keyword: "",
-              },
-              format: "{{ (res) => res?.data || [] }}",
-              mountLoad: false,
-              customService: "{{ customJsonp }}",
-            },
             fieldNames: {
               label: "title",
               value: "id",
@@ -127,9 +116,17 @@ export const Search: Story = {
             showSearch: true,
             filterOption: false,
             onSearch:
-              "{{ str => $self.componentProps.request.params.keyword = str }}",
+              "{{ str => $self.invoke('updateRequest', request => request.params.keyword = str) }}",
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: {
+              keyword: "",
+            },
+            format: "{{ (res) => res?.data || [] }}",
+            mountLoad: false,
+            customService: "{{ customJsonp }}",
+          },
         },
       },
     },
@@ -152,21 +149,21 @@ export const Dropdown: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: {
-                keyword: "",
-              },
-              format: "{{ (res) => res?.data || [] }}",
-              mountLoad: false,
-              customService: "{{ customJsonp }}",
-            },
             fieldNames: {
               label: "title",
               value: "id",
             },
             onDropdownVisibleChange:
-              "{{ open => { if(open){$self.componentProps.request.params.keyword = $self.initialValue} } }}",
+              "{{ open => { if(open){$self.invoke('updateRequest', request => request.params.keyword = $self.initialValue)} } }}",
+          },
+          "x-request": {
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: {
+              keyword: "",
+            },
+            format: "{{ (res) => res?.data || [] }}",
+            mountLoad: false,
+            customService: "{{ customJsonp }}",
           },
           "x-reactions": "{{ useAsyncDataSource }}",
         },

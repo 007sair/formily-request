@@ -1,3 +1,3 @@
-import core from "./core";
+import fr from "./core";
 export * from "./type";
-export default core;
+export default fr;

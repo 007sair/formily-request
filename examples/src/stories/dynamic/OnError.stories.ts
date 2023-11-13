@@ -39,16 +39,15 @@ export const URLError: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "123",
-              params: {
-                keyword: "{{ $self.initialValue }}",
-              },
-              format: "{{ $beforeFormat((res) => res?.data || []) }}",
-              debug: true,
-            },
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            url: "123",
+            params: {
+              keyword: "{{ $self.initialValue }}",
+            },
+            format: "{{ $beforeFormat((res) => res?.data || []) }}",
+            debug: true,
+          },
         },
       },
     },
@@ -71,9 +70,8 @@ export const NoRequest: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {},
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {},
         },
       },
     },
@@ -96,14 +94,13 @@ export const ParamsError: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: "error",
-              format: "{{ (res) => res?.data || [] }}",
-              debug: true,
-            },
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: "error",
+            format: "{{ (res) => res?.data || [] }}",
+            debug: true,
+          },
         },
       },
     },

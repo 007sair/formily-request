@@ -35,21 +35,20 @@ export const Basic: Story = {
           "x-decorator": "FormItem",
           "x-component": "Select",
           "x-component-props": {
-            request: {
-              url: "/ws/district/v1/list",
-              params: {
-                key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
-              },
-              format:
-                "{{ (res) => Array.isArray(res?.result) ? res.result[0] : [] }}",
-            },
             fieldNames: {
               label: "name",
               value: "id",
             },
           },
+          "x-request": {
+            url: "/ws/district/v1/list",
+            params: {
+              key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
+            },
+            format:
+              "{{ (res) => Array.isArray(res?.result) ? res.result[0] : [] }}",
+          },
           "x-reactions": [
-            "{{ useAsyncDataSource }}",
             {
               target: "city",
               when: "{{ !!$values.city }}",
@@ -65,22 +64,21 @@ export const Basic: Story = {
           "x-decorator": "FormItem",
           "x-component": "Select",
           "x-component-props": {
-            request: {
-              url: "/ws/district/v1/getchildren",
-              params: {
-                key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
-                id: "{{ $values.province || '' }}",
-              },
-              format:
-                "{{ (res) => Array.isArray(res?.result) ? res.result[0] : [] }}",
-            },
             fieldNames: {
               label: "name",
               value: "id",
             },
           },
+          "x-request": {
+            url: "/ws/district/v1/getchildren",
+            params: {
+              key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
+              id: "{{ $values.province || '' }}",
+            },
+            format:
+              "{{ (res) => Array.isArray(res?.result) ? res.result[0] : [] }}",
+          },
           "x-reactions": [
-            "{{ useAsyncDataSource }}",
             {
               target: "district",
               when: "{{ !!$values.district }}",
@@ -96,21 +94,20 @@ export const Basic: Story = {
           "x-decorator": "FormItem",
           "x-component": "Select",
           "x-component-props": {
-            request: {
-              url: "/ws/district/v1/getchildren",
-              params: {
-                key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
-                id: "{{ $values.city || '' }}",
-              },
-              format:
-                "{{ (res) => Array.isArray(res?.result) ? res.result[0] : [] }}",
-            },
             fieldNames: {
               label: "fullname",
               value: "id",
             },
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            url: "/ws/district/v1/getchildren",
+            params: {
+              key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
+              id: "{{ $values.city || '' }}",
+            },
+            format:
+              "{{ (res) => Array.isArray(res?.result) ? res.result[0] : [] }}",
+          },
         },
       },
     },
@@ -138,15 +135,6 @@ export const Multiple: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "/ws/place/v1/suggestion",
-              params: {
-                key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
-                keyword: "{{ $values.keyword }}",
-              },
-              format: "{{ (res) => res?.data || [] }}",
-              mountLoad: false,
-            },
             fieldNames: {
               label: "title",
               value: "address",
@@ -154,9 +142,17 @@ export const Multiple: Story = {
             showSearch: true,
             filterOption: false,
             onSearch:
-              "{{ str => $self.componentProps.request.params.keyword = str }}",
+              "{{ str => $self.invoke('updateRequest', request => request.params.keyword = str) }}",
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            url: "/ws/place/v1/suggestion",
+            params: {
+              key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
+              keyword: "{{ $values.keyword }}",
+            },
+            format: "{{ (res) => res?.data || [] }}",
+            mountLoad: false,
+          },
         },
         radioValue: {
           type: "string",
@@ -164,14 +160,11 @@ export const Multiple: Story = {
           description: "数据依赖select",
           "x-decorator": "FormItem",
           "x-component": "Radio.Group",
-          "x-component-props": {
-            request: {
-              service: "{{ queryAddress }}",
-              params: "{{ $values.selectValue }}",
-              mountLoad: false,
-            },
+          "x-request": {
+            service: "{{ queryAddress }}",
+            params: "{{ $values.selectValue }}",
+            mountLoad: false,
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
         },
         checkboxValue: {
           type: "string",
@@ -179,14 +172,11 @@ export const Multiple: Story = {
           description: "数据依赖select",
           "x-decorator": "FormItem",
           "x-component": "Checkbox.Group",
-          "x-component-props": {
-            request: {
-              service: "{{ queryAddress }}",
-              params: "{{ $values.selectValue }}",
-              mountLoad: false,
-            },
+          "x-request": {
+            service: "{{ queryAddress }}",
+            params: "{{ $values.selectValue }}",
+            mountLoad: false,
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
         },
       },
     },
@@ -208,7 +198,7 @@ export const Control: Story = {
             target: "selectValue_control",
             effects: ["onFieldValueChange"],
             fulfill: {
-              run: "{{ $target.componentProps.request.params.keyword = $self.value }}",
+              run: "{{ $target.invoke('updateRequest', r => r.params.keyword = $self.value) }}",
             },
           },
         },
@@ -221,14 +211,6 @@ export const Control: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              url: "/ws/place/v1/suggestion",
-              params: {
-                key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
-                keyword: "",
-              },
-              format: "{{ (res) => res?.data || [] }}",
-            },
             fieldNames: {
               label: "title",
               value: "address",
@@ -236,19 +218,24 @@ export const Control: Story = {
             showSearch: true,
             filterOption: false,
             onSearch:
-              "{{ str => $self.componentProps.request.params.keyword = str }}",
+              "{{ str => $self.invoke('updateRequest', request => request.params.keyword = str) }}",
           },
-          "x-reactions": [
-            "{{ useAsyncDataSource }}",
-            {
-              dependencies: [".keyword"],
-              fulfill: {
-                state: {
-                  value: "{{ $deps[0] || '' }}",
-                },
+          "x-request": {
+            url: "/ws/place/v1/suggestion",
+            params: {
+              key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
+              keyword: "",
+            },
+            format: "{{ (res) => res?.data || [] }}",
+          },
+          "x-reactions": {
+            dependencies: [".keyword"],
+            fulfill: {
+              state: {
+                value: "{{ $deps[0] || '' }}",
               },
             },
-          ],
+          },
         },
       },
     },

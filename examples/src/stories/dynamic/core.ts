@@ -1,13 +1,77 @@
+/* eslint-disable no-useless-catch */
 import type { Field, FieldDataSource } from "@formily/core";
 import { observe, observable, action } from "@formily/reactive";
 import { Schema } from "@formily/react";
 import merge from "lodash/merge";
 import debounce from "lodash/debounce";
-import { simpleFetch } from "./utils";
-import type { RequestConfig, RequestObject } from "./type";
 
 const field_key = "x-request" as `x-${string}`;
 const obs_map: Record<string, () => void> = {};
+
+export interface RequestConfig extends RequestInit {
+  baseURL?: string;
+  url?: string;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  params?: string | number | Record<string, any>;
+  staticParams?: string | number | Record<string, any>;
+  format?: string;
+  service?: string;
+  customService?: string;
+  mountLoad?: boolean;
+  debug?: boolean;
+
+  /**
+   * 抛出接口异常信息，可以定制消息通知效果
+   * 注意：内置的fetch发送请求后，如果返回的状态码为 404 或 500 等，fetch 并不会 reject，
+   * 而是会 resolve，但是 res.ok 会返回 false，需要手动处理错误；
+   */
+  onError?: (err: unknown) => void;
+}
+
+type ExpressionKey = "format" | "service" | "customService";
+
+export interface RequestObject extends Omit<RequestConfig, ExpressionKey> {
+  format?: (data: unknown) => [];
+  service?: (params: RequestObject["params"]) => Promise<unknown>;
+  customService?: (config: RequestObject) => Promise<unknown>;
+}
+
+const parseURL = (url: string, params: RequestObject["params"]) => {
+  const [prefix, search] = url.split("?");
+  const usp = new URLSearchParams(search);
+  if (typeof params === "object") {
+    Object.entries(params).forEach(([key, value]) => {
+      if (typeof value === "undefined" || value === null) return;
+      usp.has(key) ? usp.set(key, value) : usp.append(key, value);
+    });
+  }
+  const p = usp.toString();
+  return p ? [prefix, p].join("?") : prefix;
+};
+
+export const simpleFetch = (config: RequestObject) => {
+  const { url, baseURL = "", params, ...options } = config;
+  const method = options.method || "GET";
+
+  if (typeof url !== "string" || !url) {
+    throw new TypeError("url must be required and of string type");
+  }
+
+  let fullUrl = /^http(s?):\/\//i.test(url) ? url : baseURL + url;
+
+  if (method.toUpperCase() === "GET") {
+    fullUrl = parseURL(fullUrl, params);
+  } else {
+    options.body = JSON.stringify(params);
+  }
+
+  return fetch(fullUrl, { ...options, method }).then((response) => {
+    if (!response.ok) {
+      Promise.reject(response);
+    }
+    return response.json();
+  });
+};
 
 const createReaction = (
   fieldKey: string,
@@ -148,10 +212,7 @@ const createReaction = (
 function registerRequest(): void;
 function registerRequest(fieldKey: `x-${string}`): void;
 function registerRequest(baseConfig: RequestConfig): void;
-function registerRequest(
-  fieldKey: `x-${string}`,
-  baseConfig: RequestConfig
-): void;
+function registerRequest(fieldKey: string, baseConfig: RequestConfig): void;
 function registerRequest(...args: any) {
   let fieldKey = field_key,
     baseConfig = {};

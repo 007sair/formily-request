@@ -2,11 +2,13 @@
 [![Minified Size](https://img.shields.io/bundlephobia/min/formily-request.svg?label=minified)](https://bundlephobia.com/result?p=formily-request)
 [![Gzipped Size](https://img.shields.io/bundlephobia/minzip/formily-request.svg?label=gzipped)](https://bundlephobia.com/result?p=formily-request)
 
-formily-request 是一个灵活、轻量、无侵入性的扩展 formily schema 获取数据能力的库.
+一个灵活、轻量、无侵入性的扩展 formily schema 请求数据的插件.
 
-[Demo](https://007sair.github.io/formily-request/)
+<h3 style="text-align:center">
 
-[API 文档](https://github.com/007sair/formily-request/blob/main/docs/API.md)
+[ [DEMO](https://007sair.github.io/formily-request/) / [API 文档](https://github.com/007sair/formily-request/blob/main/docs/API.md) ]
+
+</h3>
 
 ## 特性
 
@@ -19,50 +21,123 @@ formily-request 是一个灵活、轻量、无侵入性的扩展 formily schema 
 
 ### 安装
 
+**该库需要 peer 依赖 `@formily/react`、`@formil/reactive`，请先确保已经安装。**
+
 ```sh
-$ npm i formily-request @formily/reactive
+$ npm i formily-request
 ```
 
 ### 使用
 
-在组件中，引入`formilyRequest`后，需要将 reactive 挂载到函数上，然后将返回的函数写到 scope 即可。
-
-[为什么需要挂载reactive?](https://github.com/007sair/formily-request/blob/main/docs/Q%26A.md#1%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%9C%A8%E5%A4%96%E9%83%A8%E6%8C%82%E8%BD%BD-formilyreactive)
-
 ```tsx
-// xxx/xx.tsx 部分代码省略
-import { action, observe } from "@formily/reactive";
-import formilyRequest from "formily-request";
+import registerRequest from "formily-request";
 
-// 将响应式相关函数挂载到函数上
-formilyRequest.reactive = { action, observe };
+// 注册"x-request"属性，函数入参配置请参考上方API文档
+registerRequest();
 
-export default () => {
-  return <SchemaField scope={{ useAsyncDataSource: formilyRequest() }} />;
-};
-```
-
-在 schema 中，formilyRequest 扩展了`x-component-props.request`字段，配合传入 scope 的核心函数，即可实现配置化获取数据。
-
-```diff
 const schema: ISchema = {
   type: "object",
   properties: {
     select: {
       type: "string",
       "x-component": "Select",
-      "x-component-props": {
-        style: { width: 300 },
-        placeholder: "请选择下拉项",
-+        request: {
-+          url: "/ws/place/v1/suggestion",
-+          params: {
-+            keyword: "",
-+          },
-+        },
+      // 具体配置请参考上方API文档
+      "x-request": {
+        url: "/ws/place/v1/suggestion",
       },
-+      "x-reactions": "{{ useAsyncDataSource }}",
     },
   },
 };
+
+export default () => {
+  return <SchemaField schema={schema} />;
+};
 ```
+
+### 进阶
+
+为满足不同的使用需求，x-request 提供了 3 种配置方式：
+
+#### 方式一：直接使用 url、method 等配置
+
+```json
+{
+  "x-request": {
+    "url": "http://xxx.xx.com",
+    "method": "post",
+    "credentials": "include",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
+```
+
+该方式使用了插件内置的`fetch`发起请求，并未做过多的封装，除了 url、method，还可以在`x-request`内使用`header`等任何 fetch 的配置。
+
+但是，这种方式也有使用限制，由于 schema 配置固化，当 url 地址需要在不同开发环境发生变化，例如，开发环境使用了`/api`作为前缀，生成环境使用`http://`开头的场景，此时，就需要使用注册函数的入参功能：
+
+```tsx
+import registerRequest from "formily-request";
+
+registerRequest({
+  baseURL: import.meta.env.BASIC_API, // 全局配置
+});
+```
+
+除了 `baseURL`，一些全局、不想在 scheme 上重复配置的参数也可以在这里（或组件内）配置。
+
+**注意：使用 url 配置方式时，`x-request.params`的类型必须为`object`，否则无法解析参数。**
+
+#### 方式二：使用`service`发起请求
+
+方式一的内置 fetch 如果无法满足请求，或者有一些定制的逻辑处理，如：token 验证、响应拦截、错误处理...等等事情时，可以使用`service`配置：
+
+```tsx
+// 声明一些业务使用的请求函数
+const queryUser = (params: { name: string }) => {
+  return axios('/xxx/yyy', { params, method: 'GET' })
+}
+
+// 在scope中注入
+<SchemaField scope={{ queryUser }} />
+
+// 在schema配置中使用
+{
+  "x-request": {
+    "service": "{{ queryUser }}",
+    "params": {
+      name: '' // 这里可以使用表达式处理一些其他字段依赖，如: '{{ $values.xx }}'
+    },
+  }
+}
+```
+
+#### 方式三：使用`customService`
+
+如果不想使用内置的 fetch，又想使用 x-request 配置，可以使用该方式，它介于一、二之间，例如：
+
+```tsx
+import type { RequestObject } from "formily-request";
+
+// 入参为x-request配置项
+const queryUser = (requestConfig: RequestObject) => {
+  const { url, params, method } = RequestObject;
+  return jsonp(url, { method, params });
+};
+
+// 在scope中注入
+<SchemaField scope={{ queryUser }} />
+
+// 在schema配置中使用
+{
+  "x-request": {
+    "customService": "{{ queryUser }}", // 这里不再是service
+    "params": {
+      name: '' // 这里可以使用表达式处理一些其他字段依赖，如: '{{ $values.xx }}'
+    },
+  }
+}
+```
+
+如果同时配置了以上 3 种方式，优先级为 `customService` > `service` > `内置 fetch`。

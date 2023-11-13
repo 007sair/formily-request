@@ -34,18 +34,15 @@ export const Radio: Story = {
           title: "Radio",
           "x-decorator": "FormItem",
           "x-component": "Radio.Group",
-          "x-component-props": {
-            request: {
-              customService: "{{ customJsonp }}",
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: {
-                keyword: "经海路",
-              },
-              format:
-                "{{ (res) => res?.data.map(item => ({label: item.title, value: item.id})) || [] }}",
+          "x-request": {
+            customService: "{{ customJsonp }}",
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: {
+              keyword: "经海路",
             },
+            format:
+              "{{ (res) => res?.data.map(item => ({label: item.title, value: item.id})) || [] }}",
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
         },
       },
     },
@@ -63,18 +60,15 @@ export const Checkbox: Story = {
           title: "Radio",
           "x-decorator": "FormItem",
           "x-component": "Checkbox.Group",
-          "x-component-props": {
-            request: {
-              customService: "{{ customJsonp }}",
-              url: "https://apis.map.qq.com/ws/place/v1/suggestion",
-              params: {
-                keyword: "经海路",
-              },
-              format:
-                "{{ (res) => res?.data.map(item => ({label: item.title, value: item.id})) || [] }}",
+          "x-request": {
+            customService: "{{ customJsonp }}",
+            url: "https://apis.map.qq.com/ws/place/v1/suggestion",
+            params: {
+              keyword: "经海路",
             },
+            format:
+              "{{ (res) => res?.data.map(item => ({label: item.title, value: item.id})) || [] }}",
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
         },
       },
     },
@@ -95,12 +89,11 @@ export const Cascader: Story = {
           "x-component-props": {
             style: { width: 300 },
             placeholder: "请选择下拉项",
-            request: {
-              service: "{{ queryCascader }}",
-              silent: false,
-            },
           },
-          "x-reactions": "{{ useAsyncDataSource }}",
+          "x-request": {
+            service: "{{ queryCascader }}",
+            silent: false,
+          },
         },
       },
     },
