@@ -1,7 +1,7 @@
 import type { Field, FieldDataSource } from "@formily/core";
 import { observe, observable, action } from "@formily/reactive";
 import { Schema } from "@formily/react";
-import merge from "lodash/merge";
+import merge from "deepmerge";
 import debounce from "lodash/debounce";
 import { simpleFetch } from "./utils";
 import type { RequestConfig, RequestObject } from "./type";
