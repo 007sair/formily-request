@@ -11,7 +11,7 @@ Formily Request 是一个灵活、轻量、无侵入性，扩展 json schema 配
 
 <h4 style="text-align:center">
 
-[Demo](https://007sair.github.io/formily-request/) / [Examples](https://codesandbox.io/s/hardcore-brahmagupta-tshn42?file=/src/App.tsx) / [API 文档](https://github.com/007sair/formily-request/blob/main/docs/API.md)
+[Demo](https://codesandbox.io/s/hardcore-brahmagupta-tshn42?file=/src/App.tsx) / [Examples](https://007sair.github.io/formily-request/) / [API 文档](https://github.com/007sair/formily-request/blob/main/docs/API.md)
 
 </h4>
 
