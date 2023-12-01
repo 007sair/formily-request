@@ -25,3 +25,8 @@ export interface RequestObject extends Omit<RequestConfig, ExpressionKey> {
   service?: (params: RequestObject["params"]) => Promise<unknown>;
   customService?: (config: RequestObject) => Promise<unknown>;
 }
+
+export type Caches = {
+  status: "init" | "mounted" | "reaction" | "unmounted";
+  dispose?: () => void;
+};

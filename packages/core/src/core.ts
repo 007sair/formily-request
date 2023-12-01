@@ -3,7 +3,7 @@ import debounce from "lodash.debounce";
 import { simpleFetch, isObject, isFunction } from "./utils";
 
 import type { Field, FieldDataSource } from "@formily/core";
-import type { RequestConfig, RequestObject } from "./type";
+import type { RequestConfig, RequestObject, Caches } from "./type";
 
 /**
  * formily-x-request
@@ -14,9 +14,7 @@ class FXR {
   // why any: Schema类型如果框定在这里，会出现版本差异导致外部使用时类型报错
   private Schema: any = null;
 
-  private field_key: `x-${string}` = "x-request";
-
-  private obs_map: Record<string, () => void> = {};
+  private key: `x-${string}` = "x-request";
 
   static getInstance(): FXR {
     if (!this._instance) {
@@ -29,11 +27,7 @@ class FXR {
    * 使用外部的 Schema 构造函数
    * @example
    * ```
-   * // React
-   * import { Schema } from "@formily/react"
-   *
-   * // Vue
-   * import { Schema } from "@formily/vue"
+   * import { Schema } from "@formily/react" // or "@formily/vue"
    * ```
    */
   use(_Schema: any) {
@@ -73,27 +67,30 @@ class FXR {
 
     if (args?.length === 1) {
       if (typeof args[0] === "string") {
-        this.field_key = args[0] as `x-${string}`;
+        this.key = args[0] as `x-${string}`;
       } else {
         baseConfig = args[0];
       }
     }
 
     if (args?.length === 2) {
-      this.field_key = args[0];
+      this.key = args[0];
       baseConfig = args[1];
     }
 
-    if (!this.field_key.startsWith("x-")) {
-      console.warn(`${this.field_key}命名不规范，请使用x-开头的前缀`);
+    if (!this.key.startsWith("x-")) {
+      console.warn(`${this.key}命名不规范，请使用x-开头的前缀`);
     }
 
-    const flag = `${this.field_key}-registered` as `x-${string}`;
+    const flag = `${this.key}-registered` as `x-${string}`;
 
     this.Schema.registerPatches((schema: any) => {
-      const x_request = schema[this.field_key as `x-${string}`];
+      const x_request = schema[this.key];
       if (x_request && !schema[flag]) {
-        const reaction = this.createReaction(x_request, baseConfig);
+        const caches: Caches = {
+          status: "init",
+        };
+        const reaction = this.createReaction(x_request, baseConfig, caches);
         const x_reactions = schema["x-reactions"];
         schema["x-reactions"] = [
           reaction,
@@ -110,20 +107,17 @@ class FXR {
   }
 
   private createReaction = (
-    requestConfig: RequestConfig,
-    baseConfig: RequestObject = {}
+    config: RequestConfig,
+    baseConfig: RequestObject = {},
+    caches: Caches
   ) => {
     // 当schema有依赖、依赖发生变化时会执行x-reaction
     return (field: Field, scope: unknown) => {
       try {
-        if (!isObject(requestConfig)) {
-          throw TypeError(`${this.field_key}不是一个对象`);
+        if (!isObject(config)) {
+          throw TypeError(`${this.key}不是一个对象`);
         }
-        const fieldPath = field.address.toString();
-        const request = this.Schema.compile(
-          requestConfig,
-          scope
-        ) as RequestObject;
+        const request = this.Schema.compile(config, scope) as RequestObject;
         const { format, mountLoad = true } = request;
         const debug = baseConfig.debug || request.debug; // 全局配置的debug会优先生效
         const obs = observable(request);
@@ -181,7 +175,9 @@ class FXR {
           return simpleFetch(config);
         };
 
-        const asyncSetDataSource = debounce((type?: string) => {
+        const asyncSetDataSource = (
+          type?: "mounted" | "reaction" | "observe"
+        ) => {
           if (debug) {
             console.log(`asyncSetDataSource type: ${type}`);
           }
@@ -206,15 +202,23 @@ class FXR {
             // 异步异常通常是接口错误，需要有ui界面查看
             debug && console.error(`"asyncSetDataSource"抛出异常，${err}`);
           }
-        }, 50); // debounce=50: 解决 reaction -> mount 连续发起请求问题
+        };
 
-        asyncSetDataSource("reaction");
-
-        if (isFunction(this.obs_map[fieldPath])) {
-          this.obs_map[fieldPath]();
+        if (field.mounted) {
+          // 生成field的更新状态
+          caches.status = caches.status === "init" ? "mounted" : "reaction";
+          if (mountLoad || caches.status !== "mounted") {
+            asyncSetDataSource(
+              caches.status === "mounted" ? "mounted" : "reaction"
+            );
+          }
         }
 
-        this.obs_map[fieldPath] = observe(obs, () => {
+        if (isFunction(caches.dispose)) {
+          caches.dispose();
+        }
+
+        caches.dispose = observe(obs, () => {
           asyncSetDataSource("observe");
         });
 
@@ -229,20 +233,15 @@ class FXR {
           }, 300),
         });
 
-        field.onMount = () => {
-          if (mountLoad) {
-            asyncSetDataSource("mount");
+        if (field.unmounted) {
+          if (isFunction(caches.dispose)) {
+            caches.dispose();
+            delete caches.dispose;
           }
-        };
-
-        field.onUnmount = () => {
-          if (isFunction(this.obs_map[fieldPath])) {
-            this.obs_map[fieldPath]();
-            delete this.obs_map[fieldPath];
-          }
-        };
+          caches.status = "unmounted";
+        }
       } catch (error) {
-        console.error(`"${this.field_key}"运行错误，${error}`);
+        console.error(`"${this.key}"运行错误，${error}`);
       }
     };
   };
