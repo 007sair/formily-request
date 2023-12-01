@@ -148,7 +148,7 @@ export const Multiple: Story = {
             url: "/ws/place/v1/suggestion",
             params: {
               key: "L6QBZ-UDFCQ-G6T5R-4D5KA-MV6BV-THFZJ",
-              keyword: "{{ $values.keyword }}",
+              keyword: "{{ $values.keyword || '' }}",
             },
             format: "{{ (res) => res?.data || [] }}",
             mountLoad: false,

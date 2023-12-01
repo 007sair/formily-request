@@ -51,7 +51,11 @@ export const simpleFetch = (config: RequestObject) => {
     options.body = JSON.stringify(params);
   }
 
-  return fetch(fullUrl, { ...options, method }).then((response) => {
+  return fetch(fullUrl, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+    method,
+  }).then((response) => {
     if (!response.ok) {
       Promise.reject(response);
     }
