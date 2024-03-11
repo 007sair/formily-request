@@ -16,9 +16,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "typedocOptions": {
-    "entryPoints": ["src/type.ts"],
-    "out": "docs"
-  }
+  "include": ["src"]
 }

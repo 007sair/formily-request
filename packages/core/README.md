@@ -9,15 +9,9 @@ Formily Request 是一个灵活、轻量、无侵入性，扩展 json schema 配
 - 组件库无关，不用关注是 Ant Design 还是 Element Plus
 - 高扩展性，可用于 Select、Radio、Checkbox、Cascader 等任何动态数据的组件
 
-<h4 style="text-align:center">
+[Demo](https://codesandbox.io/s/hardcore-brahmagupta-tshn42?file=/src/App.tsx) / [Examples](https://007sair.github.io/formily-request/examples) / [API 文档](https://github.com/007sair/formily-request/docs/classes/FormilyRequest)
 
-[Demo](https://codesandbox.io/s/hardcore-brahmagupta-tshn42?file=/src/App.tsx) / [Examples](https://007sair.github.io/formily-request/) / [API 文档](https://github.com/007sair/formily-request/blob/main/docs/API.md)
-
-</h4>
-
-## 入门使用
-
-### 安装
+## 安装
 
 **该插件需要 peer 依赖 `@formil/reactive@>=2.2.27`，请先确保已经安装。**
 
@@ -25,14 +19,13 @@ Formily Request 是一个灵活、轻量、无侵入性，扩展 json schema 配
 $ npm i formily-request
 ```
 
-### 使用
+## 使用
 
 ```tsx
-import fxr from "formily-request";
 import { Schema } from "@formily/react"; // or @formily/vue
+import fxr from "formily-request"; // 1.引入 formily-request
 
-// 1.注入Schema类
-// 2.注册x-request自定义属性，参数参考上方API文档
+// 2.使用Schema类、调用注册函数
 fxr.use(Schema).register();
 
 const schema: ISchema = {
@@ -42,9 +35,7 @@ const schema: ISchema = {
       type: "string",
       "x-component": "Select",
       // 3.配置x-request
-      "x-request": {
-        url: "/ws/place/v1/suggestion",
-      },
+      "x-request": {},
     },
   },
 };
@@ -54,11 +45,11 @@ export default () => {
 };
 ```
 
-### 使用方式
+## 配置
 
-为满足不同的使用需求，x-request 提供了 3 种配置方式：
+为满足不同的使用需求，`x-request`提供了 3 种配置方式：
 
-#### 方式一：使用 url、method 等配置
+### 方式一，使用内置`fetch`
 
 ```json
 {
@@ -90,7 +81,7 @@ fxr.register({
 
 **注意：** 使用 url 配置方式时，`x-request.params`必须为`object`类型，否则无法解析参数。
 
-#### 方式二：使用`service`发起请求
+### 方式二，使用`service`
 
 方式一的内置 fetch 如果无法满足请求，或者有一些定制的逻辑处理，如：token 验证、响应拦截、错误处理...等，可以使用`service`配置：
 
@@ -114,7 +105,7 @@ const queryUser = (params: { name: string }) => {
 }
 ```
 
-#### 方式三：使用`customService`
+### 方式三，使用`customService`
 
 如果不想使用内置的 fetch，又想使用 x-request 配置，可以使用该方式，它介于一、二之间，例如：
 
@@ -143,7 +134,7 @@ const queryUser = (requestConfig: RequestObject) => {
 
 如果同时配置了以上 3 种方式，优先级为 `customService` > `service` > `内置 fetch`。
 
-### 联动
+## 关于联动
 
 目前已知的联动场景如下：
 
@@ -170,3 +161,36 @@ const queryUser = (requestConfig: RequestObject) => {
 `updateRequest`为插件注入的自定义方法，调用`$self.invoke`，参数为函数，函数入参为配置的`x-request`配置，通过改写具体属性，可实现接口的响应式更新。
 
 对于 Select 组件的搜索场景，可以参考 demo：[example-basic-jsonp--search](https://007sair.github.io/formily-request/?path=/story/example-basic-jsonp--search)
+
+## 自定义事件
+
+formily-request 内部使用 `field.inject()` 注册了 `updateRequest` 方法，可以使用如下方式在 schema 配置中使用：
+
+```json
+{
+  "x-component-props": {
+    "onSearch": "{{ $self.invoke('updateRequest', request => request.xxx.xxx) }}"
+  }
+}
+```
+
+invoke 类型如下：
+
+```tsx
+$self.invoke("updateRequest", (request: XRequest) => void)
+```
+
+可以在第 2 个参数内修改 request 的属性值，修改后会重新发起请求，常用于 Select 组件的 onSearch 方法中：
+
+```json
+{
+  "x-component": "Select",
+  "x-component-props": {
+    "onSearch": "{{ str => $self.invoke('updateRequest', r => r.params.keyword = str) }}"
+  },
+  "x-request": {
+    "url": "xx/xxx",
+    "params": { "keyword": "" } // 触发 onSearch 后这里的 keyword 会更新，触发响应式更新
+  }
+}
+```

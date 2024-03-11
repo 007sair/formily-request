@@ -4,12 +4,20 @@ import { simpleFetch, is } from "./utils";
 import type { Field, FieldDataSource } from "@formily/core";
 import type { XRequest, XRequestSchema, GlobalXRequest, Caches } from "./type";
 
+/**
+ * formily-request 核心类
+ *
+ * @description 默认导出为该类是实例（单例）
+ */
 class FormilyRequest {
+  /** @ignore */
   static _instance: FormilyRequest | null = null;
 
   // Why `any`: Schema类型如果框定在这里，会出现版本差异导致外部使用时类型报错
+  /** @ignore */
   private Schema: any = null;
 
+  /** @ignore */
   private key: `x-${string}` = "x-request";
 
   static getInstance(): FormilyRequest {
@@ -21,11 +29,14 @@ class FormilyRequest {
 
   /**
    * 使用`Schema`构造函数：
+   *
+   * @description 由于 react 和 vue 有各自的 Schema 包依赖，插件内部不再导入 Schema，需要使用 use 从外部注入。
    * @example
    * ```
    * import fxr from "formily-request"
    * import { Schema } from "@formily/react" // or "@formily/vue"
-   * fxr.use(Schema) // 作为`use`的入参使用
+   *
+   * fxr.use(Schema) // Schema 作为`use`的入参使用
    * ```
    */
   use(_Schema: any) {
@@ -35,18 +46,22 @@ class FormilyRequest {
   }
 
   /**
-   * 注册自定义字段、全局配置的函数，类型如下:
-   * - (): void
-   * - (fieldKey: `x-${string}`): void;
-   * - (globalConfig: GlobalXRequest): void;
-   * - (fieldKey: `x-${string}`, globalConfig: GlobalXRequest): void;
-   * @param {`x-${string}`} fieldKey 自定义字段
-   * @param {GlobalXRequest} globalConfig 全局配置
+   * 没有参数的调用
+   * @description 该函数可以运行在组件外，当需要依赖组件状态时，可以像使用 formily 的 `createForm()` 一样在组件内使用。
    */
   register(): void;
+
+  /** 仅有1个参数，参数为自定义扩展名 */
   register(fieldKey: `x-${string}`): void;
+
+  /** 仅有1个参数，参数为全局配置 */
   register(globalConfig: GlobalXRequest): void;
+
+  /**
+   * 有2个参数，第1个为自定义扩展名；第2个为全局配置
+   */
   register(fieldKey: `x-${string}`, globalConfig: GlobalXRequest): void;
+
   register(...args: any) {
     if (!this.Schema) {
       console.error(
@@ -98,6 +113,7 @@ class FormilyRequest {
     });
   }
 
+  /** @ignore */
   private createReaction = (
     schema: XRequestSchema,
     globalConfig: GlobalXRequest = {},
@@ -247,4 +263,7 @@ class FormilyRequest {
   };
 }
 
+/**
+ * @ignore
+ */
 export default FormilyRequest.getInstance();

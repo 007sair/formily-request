@@ -8,8 +8,7 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "deploy-storybook": "storybook-to-ghpages -- --source-branch=main"
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
@@ -30,7 +29,6 @@
     "@storybook/blocks": "^7.5.2",
     "@storybook/react": "^7.5.2",
     "@storybook/react-vite": "^7.5.2",
-    "@storybook/storybook-deployer": "^2.8.16",
     "@storybook/testing-library": "^0.2.2",
     "@types/lodash": "^4.14.200",
     "@types/react": "^18.0.37",
