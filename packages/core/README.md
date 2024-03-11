@@ -9,7 +9,7 @@ Formily Request 是一个灵活、轻量、无侵入性，扩展 json schema 配
 - 组件库无关，不用关注是 Ant Design 还是 Element Plus
 - 高扩展性，可用于 Select、Radio、Checkbox、Cascader 等任何动态数据的组件
 
-[Demo](https://codesandbox.io/s/hardcore-brahmagupta-tshn42?file=/src/App.tsx) / [Examples](https://007sair.github.io/formily-request/examples) / [API 文档](https://github.com/007sair/formily-request/docs/classes/FormilyRequest)
+[Demo](https://codesandbox.io/s/hardcore-brahmagupta-tshn42?file=/src/App.tsx) / [Examples](https://007sair.github.io/formily-request/examples) / [API 文档](https://github.com/007sair/formily-request/docs/)
 
 ## 安装
 
