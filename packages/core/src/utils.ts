@@ -1,31 +1,15 @@
-import type { RequestObject } from "./type";
+import type { XRequest } from "./type";
 
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
-export function isArray(obj: any): obj is any[] {
-  return getType(obj) === "Array";
-}
+export const is = {
+  object: (arg: any): arg is object => getType(arg) === "Object",
+};
 
-export function isObject(obj: any): obj is { [key: string]: any } {
-  return getType(obj) === "Object";
-}
-
-export function isString(obj: any): obj is string {
-  return getType(obj) === "String";
-}
-
-export function isNumber(obj: any): obj is number {
-  return getType(obj) === "Number" && obj === obj;
-}
-
-export function isFunction(obj: any): obj is (...args: any[]) => any {
-  return typeof obj === "function";
-}
-
-const parseURL = (url: string, params: RequestObject["params"]) => {
+const parseURL = (url: string, params: XRequest["params"]) => {
   const [prefix, search] = url.split("?");
   const usp = new URLSearchParams(search);
-  if (isObject(params)) {
+  if (is.object(params)) {
     Object.entries(params).forEach(([key, value]) => {
       if (typeof value === "undefined" || value === null) return;
       usp.has(key) ? usp.set(key, value) : usp.append(key, value);
@@ -35,7 +19,7 @@ const parseURL = (url: string, params: RequestObject["params"]) => {
   return p ? [prefix, p].join("?") : prefix;
 };
 
-export const simpleFetch = (config: RequestObject) => {
+export const simpleFetch = (config: XRequest) => {
   const { url, baseURL = "", params, ...options } = config;
   const method = options.method || "GET";
 

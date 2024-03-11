@@ -1,60 +1,52 @@
 import { observe, observable, action } from "@formily/reactive";
 import debounce from "lodash.debounce";
-import { simpleFetch, isObject, isFunction } from "./utils";
-
+import { simpleFetch, is } from "./utils";
 import type { Field, FieldDataSource } from "@formily/core";
-import type { RequestConfig, RequestObject, Caches } from "./type";
+import type { XRequest, XRequestSchema, GlobalXRequest, Caches } from "./type";
 
-/**
- * formily-x-request
- */
-class FXR {
-  static _instance: FXR | null = null;
+class FormilyRequest {
+  static _instance: FormilyRequest | null = null;
 
-  // why any: Schema类型如果框定在这里，会出现版本差异导致外部使用时类型报错
+  // Why `any`: Schema类型如果框定在这里，会出现版本差异导致外部使用时类型报错
   private Schema: any = null;
 
   private key: `x-${string}` = "x-request";
 
-  static getInstance(): FXR {
+  static getInstance(): FormilyRequest {
     if (!this._instance) {
-      this._instance = new FXR();
+      this._instance = new FormilyRequest();
     }
     return this._instance;
   }
 
   /**
-   * 使用外部的 Schema 构造函数
+   * 使用`Schema`构造函数：
    * @example
    * ```
+   * import fxr from "formily-request"
    * import { Schema } from "@formily/react" // or "@formily/vue"
+   * fxr.use(Schema) // 作为`use`的入参使用
    * ```
    */
   use(_Schema: any) {
-    if (_Schema) {
-      this.Schema = _Schema;
-    } else {
-      throw new Error("no Schema");
-    }
+    if (!_Schema) throw new Error("请传入Schema配置");
+    this.Schema = _Schema;
     return this;
   }
 
   /**
-   * 注册自定义字段、全局配置
-   *
-   * 函数类型如下:
+   * 注册自定义字段、全局配置的函数，类型如下:
    * - (): void
    * - (fieldKey: `x-${string}`): void;
-   * - (baseConfig: RequestConfig): void;
-   * - (fieldKey: string, baseConfig: RequestConfig): void;
-   *
-   * @param fieldKey {`x-${string}`} 自定义字段
-   * @param baseConfig {RequestConfig} 全局配置
+   * - (globalConfig: GlobalXRequest): void;
+   * - (fieldKey: `x-${string}`, globalConfig: GlobalXRequest): void;
+   * @param {`x-${string}`} fieldKey 自定义字段
+   * @param {GlobalXRequest} globalConfig 全局配置
    */
   register(): void;
   register(fieldKey: `x-${string}`): void;
-  register(baseConfig: RequestConfig): void;
-  register(fieldKey: string, baseConfig: RequestConfig): void;
+  register(globalConfig: GlobalXRequest): void;
+  register(fieldKey: `x-${string}`, globalConfig: GlobalXRequest): void;
   register(...args: any) {
     if (!this.Schema) {
       console.error(
@@ -63,19 +55,19 @@ class FXR {
       return;
     }
 
-    let baseConfig = {};
+    let globalConfig = {};
 
     if (args?.length === 1) {
       if (typeof args[0] === "string") {
         this.key = args[0] as `x-${string}`;
       } else {
-        baseConfig = args[0];
+        globalConfig = args[0];
       }
     }
 
     if (args?.length === 2) {
       this.key = args[0];
-      baseConfig = args[1];
+      globalConfig = args[1];
     }
 
     if (!this.key.startsWith("x-")) {
@@ -85,12 +77,12 @@ class FXR {
     const flag = `${this.key}-registered` as `x-${string}`;
 
     this.Schema.registerPatches((schema: any) => {
-      const x_request = schema[this.key];
+      const x_request: XRequestSchema = schema[this.key];
       if (x_request && !schema[flag]) {
         const caches: Caches = {
           status: "init",
         };
-        const reaction = this.createReaction(x_request, baseConfig, caches);
+        const reaction = this.createReaction(x_request, globalConfig, caches);
         const x_reactions = schema["x-reactions"];
         schema["x-reactions"] = [
           reaction,
@@ -107,19 +99,19 @@ class FXR {
   }
 
   private createReaction = (
-    config: RequestConfig,
-    baseConfig: RequestObject = {},
+    schema: XRequestSchema,
+    globalConfig: GlobalXRequest = {},
     caches: Caches
   ) => {
     // 当schema有依赖、依赖发生变化时会执行x-reaction
     return (field: Field, scope: unknown) => {
       try {
-        if (!isObject(config)) {
+        if (!is.object(schema)) {
           throw TypeError(`${this.key}不是一个对象`);
         }
-        const request = this.Schema.compile(config, scope) as RequestObject;
-        const { format, mountLoad = true } = request;
-        const debug = baseConfig.debug || request.debug; // 全局配置的debug会优先生效
+        const request: XRequest = this.Schema.compile(schema, scope);
+        const { format, mountLoad = true, ready, onSuccess } = request;
+        const debug = globalConfig.debug || request.debug; // 全局配置的debug会优先生效
         const obs = observable(request);
 
         /**
@@ -130,7 +122,7 @@ class FXR {
           try {
             let _options = data;
             if (typeof format !== "undefined") {
-              if (!isFunction(format)) {
+              if (typeof format !== "function") {
                 throw new TypeError("配置项format字段需要为函数");
               }
               _options = format(data);
@@ -151,25 +143,25 @@ class FXR {
           // 应当只在field层级生效，不应与全局配置混合使用，否则难以理解。
 
           // customService仅在field层级生效
-          if (isFunction(request.customService)) {
+          if (typeof request.customService === "function") {
             return request.customService(request);
           }
 
           // service仅在field层级生效
-          if (isFunction(request.service)) {
+          if (typeof request.service === "function") {
             return request.service(request.params);
           }
 
-          const t = (o: unknown) => (isObject(o) ? o : {});
+          const t = (o: unknown) => (is.object(o) ? o : {});
 
           // 使用simpleFetch发起请求时，要求params必须是对象
           const params = Object.assign(
-            t(baseConfig.params),
+            t(globalConfig.params),
             t(request.staticParams),
             t(request.params)
           );
 
-          const config = Object.assign({}, baseConfig, request, { params });
+          const config = Object.assign({}, globalConfig, request, { params });
 
           // 使用内置fetch时，可以使用一些全局配置，但不应过度依赖
           return simpleFetch(config);
@@ -182,15 +174,23 @@ class FXR {
             console.log(`asyncSetDataSource type: ${type}`);
           }
           try {
+            if (typeof schema.ready !== "undefined") {
+              if (typeof ready === "function" && !ready(request)) return;
+              if (!ready) return;
+            }
+
             field.loading = true;
             return asyncLoader()
               .then(
                 action.bound?.((res: unknown) => {
                   field.dataSource = createDataSource(res);
+                  if (typeof onSuccess === "function") {
+                    onSuccess(res, request);
+                  }
                 })
               )
               .catch((err) => {
-                baseConfig.onError && baseConfig.onError(err);
+                globalConfig.onError && globalConfig.onError(err);
                 debug && console.error(`asyncLoader异步抛出异常，${err}`);
               })
               .finally(() => {
@@ -214,7 +214,7 @@ class FXR {
           }
         }
 
-        if (isFunction(caches.dispose)) {
+        if (typeof caches.dispose === "function") {
           caches.dispose();
         }
 
@@ -224,8 +224,8 @@ class FXR {
 
         field.inject({
           // debounce: 解决搜索时频繁触发请求问题
-          updateRequest: debounce((fn: (request: RequestObject) => void) => {
-            if (isFunction(fn)) {
+          updateRequest: debounce((fn: (request: XRequest) => void) => {
+            if (typeof fn === "function") {
               fn(obs);
             } else {
               throw new TypeError('调用"updateRequest"时，入参必须是函数');
@@ -234,7 +234,7 @@ class FXR {
         });
 
         if (field.unmounted) {
-          if (isFunction(caches.dispose)) {
+          if (typeof caches.dispose === "function") {
             caches.dispose();
             delete caches.dispose;
           }
@@ -247,4 +247,4 @@ class FXR {
   };
 }
 
-export default FXR.getInstance();
+export default FormilyRequest.getInstance();

@@ -46,9 +46,9 @@ function register(): void;
 // 方式2：自定义属性名称，例如: "x-fetch"，建议使用 "x-" 开头的命名规范
 function register(fieldKey: `x-${string}`): void;
 // 方式3：传入全局配置
-function register(baseConfig: RequestConfig): void;
+function register(globalConfig: XRequest): void;
 // 方式4：自定义属性 + 全局配置
-function register(fieldKey: `x-${string}`, baseConfig: RequestConfig): void;
+function register(fieldKey: `x-${string}`, globalConfig: XRequest): void;
 ```
 
 该函数可以运行在组件外，当需要依赖组件状态时，可以像使用 `createForm()` 一样在组件内使用。
@@ -56,18 +56,19 @@ function register(fieldKey: `x-${string}`, baseConfig: RequestConfig): void;
 ## `x-request`
 
 ```tsx
-interface RequestConfig extends RequestInit {
-  url: string;
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  params?: string | number | ObjectParam;
-  format?: (data: unknown) => [];
+interface XRequest extends RequestInit {
   baseURL?: string;
-  staticParams?: string | number | ObjectParam;
-  service?: (params: unknown) => Promise<unknown>;
+  url?: string;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  params?: string | number | Record<string, any>;
+  staticParams?: string | number | Record<string, any>;
+  format?: (data: unknown) => any[];
+  service?: (params: XRequest["params"]) => Promise<unknown>;
+  customService?: (request: XRequest) => Promise<unknown>;
   mountLoad?: boolean;
-  customService?: (config: RequestConfig) => Promise<unknown>;
   debug?: boolean;
-  onError: (err: any) => void;
+  ready?: boolean | ((request: XRequest) => boolean);
+  onSuccess?: (data: unknown, dataSource: any[], request: XRequest) => void;
 }
 ```
 
@@ -156,7 +157,7 @@ request: {
 
 ### `mountLoad`
 
-可选，字段 mount 时是否加载数据，默认为 true。用于页面加载时是否自动请求一次。
+可选，默认为 true。字段 mounted 时是否发起请求。
 
 ### `customService`
 
@@ -170,13 +171,38 @@ request: {
 - `service`：使用系统自带的函数，也可以配合 request.params 使用；
 - `customService`：完全自定义，使用了 request 配置，但内部完全自己实现的接口请求。
 
+### `ready`
+
+```tsx
+ready?: boolean | ((request: RequestObject) => boolean);
+```
+
+可选，默认为 true。值为 false 时不会发起请求。
+
 ### `debug`
 
-可选，开启后会在控制台输出部分告警提示，方便排查问题。默认为 false
+可选，默认为 false。开启后会在控制台输出部分告警提示，方便排查问题。
+
+### `onSuccess`
+
+```tsx
+ /**
+  * @param data 接口返回的原始数据，未经过任何转换
+  * @param request `x-request`编译后的数据
+  */
+onSuccess: (data: unknown, request: XRequest) => void;
+```
+
+可选，配置接口返回成功时触发。
+
+注意事项：
+
+1. 如果需要获取`format`转换后的数据，可以使用`$self.dataSource`；
+2. 不要对第 2 个参数`request`的子孙属性进行 set 操作，否则会死循环，不断触发接口请求；
 
 ### `onError`
 
-可选，用于配置接口异常处理，例如触发 `notification.error`，该配置通常用在使用内部 simpleFetch 时，simpleFetch 基于 fetch，需要手动处理错误，具体例子可参考：[storybook-onError](https://007sair.github.io/formily-request/?path=/story/example-onerror--url-error)
+可选，配置接口异常时触发，例如触发 `notification.error`，该配置通常用在使用内部 simpleFetch 时，simpleFetch 基于 fetch，需要手动处理错误，具体例子可参考：[storybook-onError](https://007sair.github.io/formily-request/?path=/story/example-onerror--url-error)
 
 ---
 

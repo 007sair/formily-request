@@ -9,11 +9,12 @@ import {
   Radio,
   Checkbox,
   Cascader,
+  Switch,
 } from "@formily/antd-v5";
 import type { FormProps } from "@formily/antd-v5";
 import { useMemo } from "react";
 import { queryAddress, queryCascader, customJsonp } from "@/service";
-import fxr, { RequestObject } from "formily-request";
+import fxr, { XRequest } from "formily-request";
 import { notification } from "antd";
 
 const SchemaField = createSchemaField({
@@ -23,6 +24,7 @@ const SchemaField = createSchemaField({
     Submit,
     Input,
     Radio,
+    Switch,
     Checkbox,
     Cascader,
   },
@@ -33,12 +35,12 @@ type Props = FormProps & {
   schema: ISchema;
 };
 
-const $beforeFormat = (format: RequestObject["format"]) => {
+const $beforeFormat = (format: XRequest["format"]) => {
   return function (res: any) {
     if (res.status !== 0) {
       throw new Error("接口数据异常");
     }
-    return format && format(res);
+    return typeof format === "function" && format(res);
   };
 };
 

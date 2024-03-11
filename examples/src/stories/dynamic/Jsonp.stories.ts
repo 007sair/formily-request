@@ -126,6 +126,8 @@ export const Search: Story = {
             format: "{{ (res) => res?.data || [] }}",
             mountLoad: false,
             customService: "{{ customJsonp }}",
+            onSuccess:
+              '{{ (res, request) => console.log("onSuccess:", res, request, $self.dataSource) }}',
           },
         },
       },
