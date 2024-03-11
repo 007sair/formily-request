@@ -86,15 +86,15 @@ fxr.register({
 方式一的内置 fetch 如果无法满足请求，或者有一些定制的逻辑处理，如：token 验证、响应拦截、错误处理...等，可以使用`service`配置：
 
 ```tsx
-// 声明一些业务使用的请求函数，返回类型为 Promise 即可
+// 1.声明一些业务使用的请求函数，返回类型为 Promise 即可
 const queryUser = (params: { name: string }) => {
   return axios('/xxx/yyy', { params, method: 'GET' })
 }
 
-// 在scope中注入
+// 2.在scope中注入
 <SchemaField scope={{ queryUser }} />
 
-// 在schema配置中使用
+// 3.在schema配置中使用
 {
   "x-request": {
     "service": "{{ queryUser }}",
