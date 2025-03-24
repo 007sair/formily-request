@@ -37,15 +37,8 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: |
-            if [ ${{ github.ref_name }} == 'beta' ]; then
-              pnpm exec changeset version --snapshot beta
-              pnpm publish -r --access public --tag beta
-            else
-              pnpm exec changeset version
-              pnpm publish -r --access public
-              pnpm exec gh-pages -d site/docs-dist -r https://${{ secrets.PAT_TOKEN }}@github.com/007sair/formily-request.git
-            fi
+          publish: ./scripts/publish.sh
+          shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
