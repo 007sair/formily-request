@@ -8,17 +8,22 @@
   "license": "MIT",
   "homepage": "https://github.com/007sair/formily-request",
   "scripts": {
+    "changeset": "changeset",
+    "dev:site": "pnpm -F site run dev",
     "build:lib": "pnpm run --parallel -F formily-request build",
-    "build:site": "pnpm -F site run build",
-    "build": "pnpm run build:lib && pnpm run build:site"
+    "build:site": "pnpm -F site run build"
   },
   "keywords": [
     "formily",
-    "schema",
+    "formily-request",
+    "json schema",
     "request",
     "fetch",
     "dynamic"
   ],
+  "devDependencies": {
+    "@changesets/cli": "^2.28.0"
+  },
   "dependencies": {
     "@formily/antd-v5": "^1.1.2",
     "@formily/core": "^2.2.27",

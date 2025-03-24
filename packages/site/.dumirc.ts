@@ -12,4 +12,6 @@ export default defineConfig({
   alias: {
     '@site': resolve(__dirname, '.'),
   },
+  base: '/formily-request/',
+  publicPath: '/formily-request/',
 });

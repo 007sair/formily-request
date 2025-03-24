@@ -3,18 +3,18 @@ name: Deploy GitHub Pages
 on:
   push:
     branches:
-      - main # 或者是你用于开发的分支
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "20"
 
@@ -22,18 +22,11 @@ jobs:
         run: |
           npm install -g pnpm
           pnpm install
-          pnpm run build
+          pnpm -F site build
 
-      - name: Deploy docs
-        uses: JamesIves/github-pages-deploy-action@4.1.4
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages # 静态站点输出分支
-          folder: docs # 构建产物的文件夹路径
-          target-folder: docs # 部署到gh-pages分支的目标文件夹
-
-      - name: Deploy examples
-        uses: JamesIves/github-pages-deploy-action@4.1.4
-        with:
-          branch: gh-pages # 静态站点输出分支
-          folder: packages/examples/storybook-static # 构建产物的文件夹路径
-          target-folder: examples # 部署到gh-pages分支的目标文件夹
+          branch: gh-pages
+          folder: packages/site/dist
+          clean: true
