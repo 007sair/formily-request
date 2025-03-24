@@ -1,6 +1,6 @@
 {
   "name": "formily-request",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "description": "A flexible, lightweight, non-intrusive plugin for extending formily schema request data.",
   "packageManager": "pnpm@8.10.0",
   "authors": [
