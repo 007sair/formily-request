@@ -1,5 +1,11 @@
 # site
 
+## 2.0.0
+
+### Major Changes
+
+- 83790c4: small change
+
 ## 1.0.0
 
 ### Major Changes
