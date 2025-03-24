@@ -2,15 +2,15 @@
   "name": "formily-request-monorepo",
   "version": "0.2.3",
   "description": "A flexible, lightweight, non-intrusive plugin for extending formily schema request data.",
-  "author": "Long Chan",
+  "authors": [
+    "LongChan <007sair@163.com>"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/007sair/formily-request",
   "scripts": {
     "build:lib": "pnpm run --parallel -F formily-request build",
-    "build:docs": "pnpm run --parallel -F formily-request docs",
-    "build:examples": "pnpm -F examples run build-storybook",
-    "storybook": "pnpm run build:lib --watch & pnpm run --parallel -F examples storybook",
-    "build": "pnpm run build:lib && pnpm run build:docs && pnpm run build:examples"
+    "build:site": "pnpm -F site run build",
+    "build": "pnpm run build:lib && pnpm run build:site"
   },
   "keywords": [
     "formily",
@@ -19,9 +19,6 @@
     "fetch",
     "dynamic"
   ],
-  "devDependencies": {
-    "typescript": "^5.2.2"
-  },
   "dependencies": {
     "@formily/antd-v5": "^1.1.2",
     "@formily/core": "^2.2.27",
