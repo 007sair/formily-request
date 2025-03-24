@@ -35,7 +35,7 @@ jobs:
 
       - name: Create Release
         id: changesets
-        uses: changesets/action@v2
+        uses: changesets/action@v1
         with:
           publish: |
             if [ ${{ github.ref_name }} == 'beta' ]; then
