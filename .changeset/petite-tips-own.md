@@ -3,4 +3,4 @@
 "site": major
 ---
 
-版本 v1.0 重构升级
+refactor version to 1.0.0
