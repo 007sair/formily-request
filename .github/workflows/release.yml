@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Create Release
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: |
+            if [ ${{ github.ref_name }} == 'beta' ]; then
+              pnpm exec changeset version --snapshot beta
+              pnpm publish -r --access public --tag beta
+            else
+              pnpm exec changeset version
+              pnpm publish -r --access public
+              pnpm exec gh-pages -d site/docs-dist -r https://${{ secrets.GH_TOKEN }}@github.com/007sair/formily-request.git
+            fi
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Update Documentation
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git pull
+          pnpm -F site build
+          git add .
+          git commit -m "docs: update for v${{ steps.changesets.outputs.version }}"
+          git push origin gh-pages

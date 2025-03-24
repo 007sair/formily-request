@@ -19,6 +19,7 @@ export default defineConfig({
           "@formily/reactive": "FormilyReactive",
           "@formily/react": "FormilyReact",
         },
+        exports: "named",
       },
     },
   },
