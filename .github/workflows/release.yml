@@ -9,6 +9,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -39,9 +42,10 @@ jobs:
             else
               pnpm exec changeset version
               pnpm publish -r --access public
-              pnpm exec gh-pages -d site/docs-dist -r https://${{ secrets.GH_TOKEN }}@github.com/007sair/formily-request.git
+              pnpm exec gh-pages -d site/docs-dist -r https://${{ secrets.GITHUB_TOKEN }}@github.com/007sair/formily-request.git
             fi
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Update Documentation
