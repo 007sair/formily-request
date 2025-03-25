@@ -8,10 +8,16 @@
   "license": "MIT",
   "homepage": "https://github.com/007sair/formily-request",
   "scripts": {
-    "changeset": "changeset",
-    "dev:site": "pnpm -F site run dev",
     "build:lib": "pnpm run --parallel -F formily-request build",
-    "build:site": "pnpm -F site run build"
+    "site:dev": "pnpm -F site run dev",
+    "site:build": "pnpm -F site run build",
+    "release": "changeset publish",
+    "change": "changeset",
+    "version": "changeset version",
+    "beta:start": "changeset pre enter beta",
+    "beta:end": "changeset pre exit",
+    "beta:publish": "pnpm beta:start && pnpm version && pnpm publish -r --tag beta",
+    "release:publish": "pnpm beta:end && pnpm version && pnpm publish -r"
   },
   "keywords": [
     "formily",
