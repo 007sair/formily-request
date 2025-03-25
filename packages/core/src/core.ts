@@ -276,7 +276,6 @@ class FormilyRequest {
       });
 
       field.inject({
-        // debounce: 解决搜索时频繁触发请求问题
         updateRequest: (fn: (request: XRequest) => void) => {
           logger.info("调用updateRequest");
           try {

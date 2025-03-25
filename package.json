@@ -21,13 +21,13 @@
     "fetch",
     "dynamic"
   ],
-  "devDependencies": {
-    "@changesets/cli": "^2.28.0"
-  },
   "dependencies": {
     "@formily/antd-v5": "^1.1.2",
     "@formily/core": "^2.2.27",
     "@formily/react": "^2.2.27",
     "@formily/reactive": "^2.2.27"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.28.1"
   }
 }
