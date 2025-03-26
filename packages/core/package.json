@@ -1,6 +1,6 @@
 {
   "name": "formily-request",
-  "version": "0.2.3",
+  "version": "1.0.0-beta.1",
   "description": "A flexible, lightweight, non-intrusive plugin for extending formily schema request data.",
   "packageManager": "pnpm@8.10.0",
   "authors": [
@@ -35,6 +35,7 @@
     "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
+    "gh-pages": "^6.3.0",
     "typescript": "5.4.2",
     "vite": "^4.5.9",
     "vite-plugin-dts": "^3.9.1"

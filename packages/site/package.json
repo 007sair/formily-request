@@ -7,7 +7,8 @@
     "dev": "dumi dev",
     "build": "dumi build",
     "preview": "dumi preview",
-    "prepare": "dumi setup"
+    "prepare": "dumi setup",
+    "deploy": "gh-pages -d dist"
   },
   "authors": [
     "LongChan <007sair@163.com>"

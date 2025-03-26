@@ -31,6 +31,9 @@ importers:
         specifier: '>=2.2.27'
         version: 2.3.2
     devDependencies:
+      gh-pages:
+        specifier: ^6.3.0
+        version: 6.3.0
       typescript:
         specifier: 5.4.2
         version: 5.4.2
