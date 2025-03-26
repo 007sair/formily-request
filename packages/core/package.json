@@ -27,6 +27,10 @@
       "default": "./dist/index.js"
     }
   },
+  "publishConfig": {
+    "tag": "beta",
+    "access": "public"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
