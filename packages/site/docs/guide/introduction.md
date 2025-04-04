@@ -8,7 +8,7 @@ toc: content
 
 # 什么是 Formily Request
 
-Formily Request 是一个专注于配置化场景的数据请求解决方案。它通过扩展 JSON Schema 配置，以无侵入的方式实现接口请求和数据转换，为表单组件的动态数据获取提供了一种优雅且高效的方案。
+formily-request 是一个专注于配置化场景的数据请求解决方案。它通过扩展 JSON Schema 配置，以无侵入的方式实现接口请求和数据转换，为表单组件的动态数据获取提供了一种优雅且高效的方案。
 
 ## 为什么需要 Formily Request
 
@@ -22,7 +22,7 @@ Formily Request 是一个专注于配置化场景的数据请求解决方案。�
 - 自定义组件方案需要进行额外的组件开发
 - `useAsyncDataSource` 方案需要在系统中预先定义数据源函数
 
-Formily Request 正是为解决这些问题而生，它让你可以直接在 JSON Schema 中配置数据请求，无需额外的开发工作。
+通过 formily-request，你可以直接在 JSON Schema 中配置数据请求，无需额外的开发工作。
 
 以下是 `官方示例` vs `formily-request` 的效果对比：
 

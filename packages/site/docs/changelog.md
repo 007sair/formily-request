@@ -4,7 +4,7 @@ nav: { title: 'Changelog', order: 4 }
 
 # Changelog
 
-## v1.0.0-beta.1
+## v1.0.0-beta.4
 
 `2025-03-24`
 
@@ -14,7 +14,7 @@ nav: { title: 'Changelog', order: 4 }
 
 - 移除 `updateRequest` 的内置防抖机制
   - 影响：所有使用 `updateRequest` 进行请求更新的场景
-  - 迁移：现在需要手动配置 `debounce` 参数来实现防抖
+  - 迁移：现在需要手动配置 `debounce` 参数来实现防抖，具体可参考[防抖优化](/demo#防抖优化)
 - 全局配置 `onError` 更名为 `onLog`
   - 影响：使用了全局错误处理的应用
   - 迁移：将 `onError` 替换为 `onLog`，支持更全面的日志级别

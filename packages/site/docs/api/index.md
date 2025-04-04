@@ -6,7 +6,7 @@ nav: { title: 'API', order: 2 }
 
 插件默认导出 FormilyRequest 的单例对象，实例上面挂载了 use、register 方法。
 
-调用实例方法后，就可以在 schema 中使用注册后的字段（默认为：`x-request`）了。
+调用实例方法后，就可以在 schema 中使用注册后的字段（默认为：`x-request`）。
 
 ## 实例方法
 
@@ -62,6 +62,48 @@ fxr.register({
 });
 ```
 
+## 全局配置
+
+全局配置是指在调用 `register` 方法时传入的配置对象，类型定义如下：
+
+```typescript
+interface GlobalXRequest extends XRequest, FetchOptions {
+  onLog?: (level: LoggerLevel, message: string, error?: any) => void;
+}
+```
+
+全局配置会作为默认配置被应用到每个字段的请求中，但字段配置会覆盖全局配置。具体规则如下：
+
+1. **参数合并规则**：
+
+   - 全局 `params` 会与字段 `params` 进行浅合并
+   - 字段 `params` 的同名属性会覆盖全局 `params`
+   - 如果字段配置了 `staticParams`（已废弃），会先与全局 `params` 合并，再与字段 `params` 合并
+
+2. **调试模式优先级**：
+
+   - 字段的 `debug` 配置优先级高于全局配置
+   - 当全局 `debug` 为 `true` 时，所有未显式设置 `debug` 的字段都会开启调试模式
+
+3. **作用域说明**：
+   - `service` 和 `customService` 的作用域包含了全局配置
+   - 在这些函数内可以访问到合并后的请求配置
+   - 可以通过这些函数实现更复杂的请求逻辑，如请求重试、数据缓存等
+
+### `onLog`
+
+- **类型**: `(level: LoggerLevel, message: string, error?: any) => void`
+- **必填**: 否
+- **说明**: 全局日志处理函数，用于统一处理和监控请求过程中的各类信息
+- **参数说明**:
+  - `level`: 日志级别，可选值：`"INFO"` | `"WARN"` | `"ERROR"` | `"GROUP"`
+  - `message`: 日志消息内容
+  - `error`: 错误对象（仅在错误时存在）
+
+:::info{title=使用示例}
+具体的使用场景和示例代码请参考[配置概述](/guide/configuration#全局配置)。
+:::
+
 ## 字段配置
 
 字段配置是指在 `JSON Schema` 中配置的 `x-reqeust` 对象，类型定义如下：
@@ -80,6 +122,7 @@ interface XRequest extends RequestInit {
   debug?: boolean;
   onSuccess?: (data: unknown, request: XRequest) => void;
   staticParams?: Record<string, any>;
+  disabledReactive?: boolean;
 }
 ```
 
@@ -292,11 +335,37 @@ const schema = {
 }
 ```
 
-### `staticParams`
+### `disabledReactive`
+
+- **类型**: `boolean`
+- **默认值**: `false`
+- **说明**: 禁用响应式更新。当设置为 `true` 时，组件将不会对请求参数的变化做出响应，可以用于优化高频更新场景下的性能。
+- **示例**:
+
+```typescript
+{
+  "x-request": {
+    "url": "/api/search",
+    "params": {
+      "keyword": "{{ $self.value }}" // 输入框值变化时不会触发请求
+    },
+    "disabledReactive": true // 禁用响应式更新
+  }
+}
+```
+
+具体参考示例：[disabledreactive](/demo#disabledreactive)
+
+### ~`staticParams`~
 
 - **类型**: `Record<string, any>`
 - **必填**: 否
 - **说明**: 静态请求参数，不会被动态参数覆盖，通常用于设置固定的查询条件
+
+:::warning
+staticParams 在 `v1.0.0` 版本中已被标记为废弃，后续版本不再支持。如需设置静态参数，可以使用 `params` 字段。
+:::
+
 - **示例**:
 
 ```typescript
@@ -313,55 +382,88 @@ const schema = {
 }
 ```
 
-:::warning
-staticParams 字段已被标记为废弃，后续版本不再支持。如需设置静态参数，可以使用 `params` 字段。
-:::
-
 ## 字段方法
 
 ### `updateRequest`
 
-formily-request 内部通过 [inject](https://core.formilyjs.org/zh-CN/api/models/field#inject) 方法注入了 updateRequest 方法，这样就可以在 schema 表达式中使用 `$self.invoke('updateRequest', request => request.params.xxx)` 来更新请求配置。
+formily-request 内部通过 [inject](https://core.formilyjs.org/zh-CN/api/models/field#inject) 方法注入了 updateRequest 方法，用于动态更新请求配置。
 
-`invoke` 参数说明：
+**类型定义**：
 
-- `updateRequest`： 方法为 formily-request 内部注册的自定义方法；
-- `(request) => void`：函数的 `request` 参数是一个 observable 对象，修改 request 会触发接口请求。
+```typescript
+type UpdateRequest = (updater: (request: XRequest) => void) => void;
+```
 
-示例，在搜索框输入时，动态更新请求参数：
+**参数说明**：
 
-```json
+- `updater`：更新函数，接收当前请求配置作为参数
+  - `request`：当前字段的请求配置，是一个 observable 对象
+  - 在函数内修改 request 的任意属性都会触发重新请求
+
+**使用场景**：
+
+- 动态修改请求参数
+- 更新请求 URL
+- 切换请求方法
+- 修改请求配置的任意属性
+
+**示例**：
+
+```typescript
 {
-  "ready_select": {
-    "type": "string",
-    "x-component": "Select",
-    "x-component-props": {
-      "onSearch": "{{ keyword => $self.invoke('updateRequest', xrequest => xrequest.params.text = keyword) }}"
-    },
-    "x-request": {
-      "url": "/api/search",
-      "params": { "text": "" }, // updateRequest第2个参数为函数，函数的参数为当前请求配置
-      "ready": "{{ !!$values.visible }}",
-      "format": "{{ (res) => res?.data?.list || [] }}"
-    }
+  "type": "string",
+  "x-component": "Select",
+  "x-component-props": {
+    // 搜索时更新查询参数
+    "onSearch": "{{ keyword => $self.invoke('updateRequest', request => request.params.keyword = keyword) }}",
+    // 切换时更新请求方法
+    "onChange": "{{ value => $self.invoke('updateRequest', request => request.method = value) }}"
+  },
+  "x-request": {
+    "url": "/api/search",
+    "params": { "keyword": "" },
+    "method": "GET"
   }
 }
 ```
 
-具体示例参考：[Ready](/demo/basic#ready)
-
 ### `reloadRequest`
 
-- **类型**: `() => Promise<void>`
-- **必填**: 否
-- **说明**: 主动触发请求的方法，使用当前的请求参数重新获取数据。与 `updateRequest` 的区别在于它不需要传入回调函数来修改请求参数。
-- **示例**:
+**类型定义**：
+
+```typescript
+type ReloadRequest = () => Promise<void>;
+```
+
+**说明**：
+重新发起请求的方法，使用当前的请求配置重新获取数据。与 `updateRequest` 的区别：
+
+- `reloadRequest` 直接使用当前配置重新请求
+- `updateRequest` 需要传入回调函数修改配置后请求
+
+**使用场景**：
+
+- 手动刷新数据
+- 特定事件触发时重新加载
+- 依赖项变化时刷新
+
+**示例**：
 
 ```typescript
 {
+  "type": "string",
   "x-component": "Select",
   "x-component-props": {
-    "onVisibleChange": "{{ visible => visible && $self.invoke('reloadRequest') }}" // 展开下拉框时刷新数据
+    // 展开下拉框时刷新数据
+    "onDropdownVisibleChange": "{{ visible => visible && $self.invoke('reloadRequest') }}",
+    // 点击刷新按钮时重新加载
+    "suffixIcon": "{{ <RefreshIcon onClick={() => $self.invoke('reloadRequest')} /> }}"
+  },
+  "x-request": {
+    "url": "/api/options",
+    "method": "GET"
+  }
+}
   },
   "x-request": {
     "url": "/api/options",

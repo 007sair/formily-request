@@ -5,7 +5,13 @@ const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 const isObject = (obj: any): obj is object => getType(obj) === "Object";
 
 export const getErrorMsg = (error: any) => {
-  return error instanceof Error ? error.message : "unknown error";
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (error instanceof Response) {
+    return `http error: ${error.statusText}, Status: ${error.status}`;
+  }
+  return "unknown error";
 };
 
 export const stringify = (option: any, fallback?: string) => {
@@ -57,12 +63,12 @@ export const simpleFetch = async (config: XRequest) => {
       ...options,
     });
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      throw response;
     }
     return response.json();
   } catch (error) {
     const msg = getErrorMsg(error);
-    throw new Error(`default fetch error, ${msg}`, { cause: error });
+    throw new Error(`fetch error, ${msg}`, { cause: error });
   }
 };
 
@@ -72,4 +78,17 @@ export const safeParams = (v: unknown) => {
     throw new TypeError(`参数类型错误,需要为对象`);
   }
   return v;
+};
+
+export const mergeSchemaProps = (
+  schema: Record<string, any>,
+  key: string,
+  value: unknown
+) => {
+  const x_omitted = schema[key] || [];
+  schema[key] = [
+    value,
+    ...(Array.isArray(x_omitted) ? x_omitted : [x_omitted]),
+  ];
+  return schema;
 };

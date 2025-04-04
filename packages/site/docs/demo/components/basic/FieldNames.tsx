@@ -1,7 +1,9 @@
+// @ts-nocheck dumi needs React import for real-time editing
+import React from 'react';
 import { type ISchema } from '@formily/react';
 import { SchemaForm } from '../common/SchemaForm';
 
-export default function BasicSelect() {
+export default () => {
   const schema: ISchema = {
     type: 'object',
     properties: {
@@ -23,4 +25,4 @@ export default function BasicSelect() {
     },
   };
   return <SchemaForm schema={schema} />;
-}
+};

@@ -2,6 +2,7 @@
  * title: 延迟请求下拉
  * description: 这个例子增加了延迟加载，方便看到效果
  */
+import React from 'react';
 import { type ISchema } from '@formily/react';
 import { SchemaForm } from '../common/SchemaForm';
 import { message, type SelectProps } from 'antd';

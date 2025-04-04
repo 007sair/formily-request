@@ -33,7 +33,7 @@ formily-request 需要 peer 依赖 `@formily/reactive@>=2.2.27`，请确保已�
 
 ### 基础配置
 
-使用 Formily Request 只需要三个简单步骤：
+使用 formily-request 只需要三个简单步骤：
 
 1. 引入 formily-request
 2. 使用外部 Schema 并注册自定义字段
@@ -85,6 +85,6 @@ export const App = () => {
 
 ### 工作原理
 
-Formily Request 内部使用响应式机制来处理数据请求和更新。当组件初始化或依赖的响应式数据发生变化时，会自动触发请求并更新组件的数据源。
+formily-request 内部使用响应式机制来处理数据请求和更新。当组件初始化或依赖的响应式数据发生变化时，会自动触发请求并更新组件的数据源。
 
 详细的工作原理和高级用法，请参考：[工作原理](/guide/working-principles)

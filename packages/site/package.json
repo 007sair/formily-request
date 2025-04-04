@@ -1,6 +1,6 @@
 {
   "name": "site",
-  "version": "0.0.1",
+  "version": "1.0.0-beta.4",
   "description": "formily-request documentation site based on dumi",
   "scripts": {
     "start": "npm run dev",
@@ -8,7 +8,7 @@
     "build": "dumi build",
     "preview": "dumi preview",
     "prepare": "dumi setup",
-    "deploy": "gh-pages -d dist"
+    "deploy": "pnpm build && gh-pages -d dist"
   },
   "authors": [
     "LongChan <007sair@163.com>"

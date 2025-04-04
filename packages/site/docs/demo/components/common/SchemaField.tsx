@@ -19,11 +19,13 @@ import { mockApiBaseURL } from '@site/constant/index';
 
 fxr.use(Schema).register({
   baseURL: mockApiBaseURL,
-  debug: true,
-  onLog: (level, msg, error) => {
+  onLog: async (level, msg, error) => {
     if (level === 'ERROR') {
-      console.groupCollapsed(`%c${msg}`, 'color:red;font-size:12px');
-      console.error(error);
+      console.group('全局onLog函数', msg);
+      console.log('error:');
+      console.dir(error);
+      console.log('error.cause:');
+      console.dir(error.cause);
       console.groupEnd();
     }
   },

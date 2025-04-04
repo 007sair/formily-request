@@ -2,6 +2,8 @@
  * title: 基础下拉请求
  * description: 禁用 `mountLoad` 后，只有在下拉项打开时(`onDropdownVisibleChange`)才会发起请求
  */
+// @ts-nocheck dumi needs React import for real-time editing
+import React from 'react';
 import { type ISchema } from '@formily/react';
 import { SchemaForm } from '../common/SchemaForm';
 

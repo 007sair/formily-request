@@ -1,3 +1,5 @@
+// @ts-nocheck dumi needs React import for real-time editing
+import React from 'react';
 import { type ISchema } from '@formily/react';
 import { SchemaForm } from '../common/SchemaForm';
 
@@ -25,7 +27,7 @@ const schema: ISchema = {
       'x-request': {
         url: '/api/search',
         params: {
-          text: '{{ $values.keyword }}',
+          text: '{{ $values.keyword || "" }}',
         },
         format:
           '{{ (res) => res?.data?.list.map(it => ({ label: it.text, value: it.id })) }}',

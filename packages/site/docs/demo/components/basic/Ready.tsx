@@ -1,3 +1,5 @@
+// @ts-nocheck dumi needs React import for real-time editing
+import React from 'react';
 import { type ISchema } from '@formily/react';
 import { SchemaForm } from '../common/SchemaForm';
 
@@ -7,7 +9,6 @@ const schema: ISchema = {
     visible: {
       type: 'boolean',
       title: '是否发起请求',
-      default: true,
       'x-decorator': 'FormItem',
       'x-component': 'Switch',
       'x-component-props': {

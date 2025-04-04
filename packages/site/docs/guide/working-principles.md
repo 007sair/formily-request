@@ -41,7 +41,7 @@ class FormilyRequest {
 
 ## 2. 响应式更新机制
 
-插件使用 `@formily/reactive` 实现响应式更新机制，主要包含以下几个步骤：
+formily-request 使用 `@formily/reactive` 实现响应式更新机制，主要包含以下几个步骤：
 
 1. **创建响应式对象**：将 `x-request` 配置转换为响应式对象
 2. **依赖收集**：监听配置变化，收集动态依赖

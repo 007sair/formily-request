@@ -11,12 +11,19 @@ formily-request 提供了完善的错误处理机制，通过 `onError` 和 `onL
 
 在使用 formily-request 时，可能遇到以下几类错误：
 
+:::info{title=温馨提示}
+下方示例都会使用 `onLog` 在 开发者工具 中输出一些日志、错误信息。<br />
+为了更好的体验，建议大家在查看示例时，点击 `展开代码` 左侧的 `在独立页面中打开`，并在控制台中查看错误信息。
+<br /><br />
+![](../../assets/debug-tip.png)
+:::
+
 ### 1. 请求错误
 
 请求错误主要发生在接口调用阶段，常见情况包括：
 
 - 接口地址配置错误（404）
-- 接口返回非 200 状态码
+- 接口返回非 200 状态码（401）
 - 网络连接超时
 
 ```tsx | pure
@@ -27,6 +34,8 @@ formily-request 提供了完善的错误处理机制，通过 `onError` 和 `onL
   }
 }
 ```
+
+<code src="./components/on-error/ResponseError.tsx"></code>
 
 ### 2. 格式化错误
 
@@ -39,32 +48,14 @@ formily-request 提供了完善的错误处理机制，通过 `onError` 和 `onL
 ```tsx | pure
 {
   'x-request': {
-    url: '/api/user',
     format: '{{ 123 }}', // 类型错误
-    onError: '{{ error => $self.selfErrors = error.message }}'
-  }
-}
-
-{
-  'x-request': {
-    url: '/api/user',
     format: '{{ () => undefined }}', // 返回值错误
-    onError: '{{ error => $self.selfErrors = error.message }}'
-  }
-}
-
-{
-  'x-request': {
-    url: '/api/user',
     format: '{{ (res) => ress?.data || [] }}', // 语法错误
-    onError: '{{ error => $self.selfErrors = error.message }}'
   }
 }
 ```
 
-### 3. 示例
-
-<code src="./components/on-error/Field.tsx"></code>
+<code src="./components/on-error/FormatError.tsx"></code>
 
 ## 错误处理最佳实践
 
@@ -93,6 +84,7 @@ registerRequest({
   onLog: (level, message, error) => {
     if (level === 'ERROR') {
       // 错误上报
+      // error.cause 可以获取到具体的错误信息
       reportError({ level, message, error });
     }
   },
@@ -113,7 +105,7 @@ registerRequest({
 }
 ```
 
-<code src="./components/on-error/SwitchError.tsx"></code>
+<code src="./components/on-error/ResetError.tsx"></code>
 
 ### 4. 编译错误处理
 
@@ -133,7 +125,7 @@ Schema.registerCompiler((expression, scope) => {
 });
 ```
 
-<code src="./components/on-error/Compile.tsx"></code>
+<code src="./components/on-error/CatchCompileError.tsx"></code>
 
 ## 调试与错误排查
 

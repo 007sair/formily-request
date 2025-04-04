@@ -1,3 +1,5 @@
+// @ts-nocheck dumi needs React import for real-time editing
+import React from 'react';
 import { type ISchema } from '@formily/react';
 import { SchemaForm } from '../common/SchemaForm';
 import { XRequest } from 'formily-request';

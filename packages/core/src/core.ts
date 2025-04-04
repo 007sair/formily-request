@@ -1,5 +1,10 @@
 import { observe, observable, action } from "@formily/reactive";
-import { simpleFetch, safeParams, getErrorMsg } from "./utils";
+import {
+  simpleFetch,
+  safeParams,
+  getErrorMsg,
+  mergeSchemaProps,
+} from "./utils";
 import { Logger } from "./logger";
 import type { Field, FieldDataSource } from "@formily/core";
 import type { XRequest, XRequestSchema, GlobalXRequest, Caches } from "./type";
@@ -94,18 +99,17 @@ class FormilyRequest {
             lifecycle: Lifecycle.INIT,
             dispose: null,
           };
+          // 忽略 x-request 在 formily 中的编译，formily-request内部接管
+          mergeSchemaProps(schema, "x-compile-omitted", this.key);
+
           const reaction = this.createReaction(x_request, globalConfig, caches);
-          const x_reactions = schema["x-reactions"] || [];
-          schema["x-reactions"] = [
-            reaction,
-            ...(Array.isArray(x_reactions) ? x_reactions : [x_reactions]),
-          ];
+          mergeSchemaProps(schema, "x-reactions", reaction);
           schema[flag] = true;
         }
         return schema;
       });
     } catch (error) {
-      console.error("register调用错误", { key: this.key, error });
+      console.error("register error", { key: this.key, error });
     }
   }
 
@@ -119,16 +123,18 @@ class FormilyRequest {
         return data as FieldDataSource[];
       }
       if (typeof format !== "function") {
-        throw new TypeError("format字段的类型不是函数");
+        throw new TypeError("format is not a function");
       }
       let formattedData = format(data);
       if (!Array.isArray(formattedData)) {
-        throw new Error(`format字段的返回值不是数组`);
+        throw new Error(
+          `format must return an array, but got ${typeof formattedData}`
+        );
       }
       return formattedData;
     } catch (error) {
       const msg = getErrorMsg(error);
-      throw new Error(`format格式化错误，${msg}`, { cause: error });
+      throw new Error(`format error: ${msg}`, { cause: error });
     }
   }
 
@@ -191,7 +197,7 @@ class FormilyRequest {
             const params = Object.assign({}, gp, sp, rp);
             return Object.assign({}, globalConfig, request, { params });
           } catch (error) {
-            logger.error("MergeRequest Failed", error);
+            logger.error("Error merging params", error);
             return {};
           }
         };
@@ -206,34 +212,36 @@ class FormilyRequest {
         try {
           callback(...rest);
         } catch (error) {
-          logger.error(`调用 ${callback} 函数失败`, error);
+          logger.error(`invoke ${callback} function failed`, error);
         }
       };
 
       const asyncSetDataSource = async () => {
         try {
-          logger.info("准备发起请求,判断是否发起请求");
+          logger.info("Preparing to make request, checking conditions");
           if (typeof ready === "boolean" && !ready) {
-            logger.info("ready字段为false,不发起请求");
+            logger.info("ready field is false, request aborted");
             return;
           }
           if (typeof ready === "function" && !ready(request)) {
-            logger.info("ready字段返回false,不发起请求");
+            logger.info("ready function returned false, request aborted");
             return;
           }
           field.loading = true;
-          logger.info("发起请求", { request });
+          logger.info("Making request", { request });
           const result = await asyncLoader();
           // 使用 action.bound 包裹，内部无需收集依赖
           const run = action.bound?.(() => {
-            logger.info("请求成功,准备设置dataSource", { format });
+            logger.info("Request successful, preparing to set dataSource", {
+              format,
+            });
             field.dataSource = this.formatData(result, format);
+            logger.info("DataSource set, calling onSuccess");
             processCallback(onSuccess, result, request);
-            logger.info("设置dataSource、调用onSuccess完毕");
           });
           run && run();
         } catch (error) {
-          logger.error("设置dataSource失败,准备触发onError回调", error);
+          logger.error("Failed to set dataSource, calling onError", error);
           processCallback(onError, error);
         } finally {
           field.loading = false;
@@ -243,7 +251,7 @@ class FormilyRequest {
       if (field.mounted) {
         // 依赖变化时发起请求
         if (caches.lifecycle > Lifecycle.MOUNTED && !disabledReactive) {
-          logger.info(`${this.key}配置已被修改,触发请求`, {
+          logger.info(`${this.key} config modified, triggering request`, {
             lifecycle: Lifecycle[caches.lifecycle],
           });
           asyncSetDataSource();
@@ -251,12 +259,15 @@ class FormilyRequest {
         // 使用 enum 计数，避免重复执行
         if (caches.lifecycle < Lifecycle.MOUNTED) {
           caches.lifecycle = Lifecycle.MOUNTED;
-          logger.info("组件已挂载", {
+          logger.info("Component mounted", {
             lifecycle: Lifecycle[caches.lifecycle],
           });
           // 仅组件挂载时触发一次
           if (mountLoad) {
-            logger.info("组件挂载后自动触发请求", { mountLoad, request });
+            logger.info("Auto-triggering request after component mount", {
+              mountLoad,
+              request,
+            });
             asyncSetDataSource();
           }
           caches.lifecycle++;
@@ -269,7 +280,7 @@ class FormilyRequest {
 
       // 监听 obs 变化，在 updateRequest 中修改时触发接口请求
       caches.dispose = observe(obs, (change) => {
-        logger.info(`主动修改${this.key}配置,触发请求`, {
+        logger.info(`Manual ${this.key} config change, triggering request`, {
           change,
         });
         asyncSetDataSource();
@@ -277,18 +288,20 @@ class FormilyRequest {
 
       field.inject({
         updateRequest: (fn: (request: XRequest) => void) => {
-          logger.info("调用updateRequest");
+          logger.info("Calling updateRequest");
           try {
             if (typeof fn !== "function") {
-              throw new Error('调用"updateRequest"时,入参必须是函数');
+              throw new Error("updateRequest parameter must be a function");
             }
             fn(obs);
           } catch (error) {
-            logger.error("updateRequest Failed", error);
+            logger.error("updateRequest failed", error);
           }
         },
         reloadRequest: () => {
-          logger.info('主动调用"reloadRequest",触发请求', { request });
+          logger.info("Manual reloadRequest call, triggering request", {
+            request,
+          });
           return asyncSetDataSource();
         },
       });
@@ -299,7 +312,7 @@ class FormilyRequest {
           caches.dispose = null;
         }
         caches.lifecycle = Lifecycle.UNMOUNT;
-        logger.info("组件已卸载", { unmounted: field.unmounted });
+        logger.info("Component unmounted", { unmounted: field.unmounted });
       }
 
       logger.groupEnd();

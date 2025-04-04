@@ -1,6 +1,8 @@
 /**
  * description: 通过在 scope 中注入 debounce 函数，在 onSearch 事件中使用 debounce 函数来实现防抖更新请求。
  */
+// @ts-nocheck dumi needs React import for real-time editing
+import React from 'react';
 import { type ISchema } from '@formily/react';
 import { SchemaForm } from '../common/SchemaForm';
 import debounce from 'lodash.debounce';

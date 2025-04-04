@@ -40,7 +40,7 @@ formily-request 提供了一套灵活的配置系统，让你能够轻松地处�
 
 ## 全局配置
 
-通过 `fxr.register()` 方法，可以设置全局配置，影响所有使用 formily-request 的表单字段。
+通过 `fxr.register()` 方法，可以设置全局配置，影响所有使用 formily-request 的表单字段。以下是一些常见的配置场景和最佳实践。
 
 ### 基础 URL 配置
 
@@ -89,10 +89,9 @@ fxr.register({
 });
 ```
 
-这些配置会应用到所有请求中，适用于需要统一认证的场景：
+这些配置会应用到所有请求中，适用于需要统一认证的场景。例如，在登录后设置全局认证信息：
 
 ```typescript
-// 在登录后设置全局认证信息
 const setGlobalAuth = (token) => {
   fxr.register({
     headers: {
@@ -104,7 +103,7 @@ const setGlobalAuth = (token) => {
 
 ### 错误处理配置
 
-通过 `onLog` 回调函数可以实现全局统一的错误处理机制：
+通过 `onLog` 回调函数可以实现全局统一的错误处理机制。以下是一个完整的错误处理示例，包含了网络错误、认证错误和业务错误的处理：
 
 ```typescript
 fxr.register({
@@ -113,33 +112,89 @@ fxr.register({
     // type: 'info' | 'error' | 'group' | 'groupEnd'
     if (type === 'error') {
       const error = data;
-      message.error(error.message || '请求失败');
 
-      // 根据错误类型进行不同处理
+      // 网络错误处理
       if (error instanceof TypeError) {
-        // 处理网络错误
         console.error('网络请求错误:', error);
-      } else if (error.status === 401) {
-        // 处理认证错误
-        router.push('/login');
+        message.error('网络连接失败，请检查网络设置');
+        return;
       }
+
+      // HTTP 状态码错误处理
+      switch (error.status) {
+        case 401:
+          message.error('登录已过期，请重新登录');
+          router.push('/login');
+          break;
+        case 403:
+          message.error('没有操作权限');
+          break;
+        case 404:
+          message.error('请求的资源不存在');
+          break;
+        case 500:
+          message.error('服务器错误，请稍后重试');
+          break;
+        default:
+          message.error(error.message || '操作失败，请重试');
+      }
+
+      // 错误日志上报
+      errorTracker.captureException(error, {
+        extra: {
+          type,
+          message,
+          timestamp: new Date().toISOString(),
+        },
+      });
     }
   },
 });
 ```
 
-`onLog` 回调函数接收三个参数：
+### 调试与日志配置
 
-- `type`: 日志类型，可能的值为 'info' | 'error' | 'group' | 'groupEnd'
-- `message`: 日志消息
-- `data`: 额外的数据，当 type 为 'error' 时，data 为错误对象
-
-### 调试配置
-
-通过全局配置开启调试模式，查看请求过程中的详细信息：
+通过全局配置可以灵活控制调试信息的输出：
 
 ```typescript
 fxr.register({
-  debug: true,
+  debug: process.env.NODE_ENV === 'development',
+  onLog: (type, message, data) => {
+    // 开发环境下打印详细日志
+    if (process.env.NODE_ENV === 'development') {
+      console.group(`[${type}] ${message}`);
+      if (data) console.log(data);
+      console.groupEnd();
+    }
+
+    // 生产环境下只记录错误日志
+    if (process.env.NODE_ENV === 'production' && type === 'error') {
+      logger.error(message, data);
+    }
+  },
+});
+```
+
+### 请求参数配置
+
+通过全局配置可以设置一些通用的请求参数，这些参数会与字段配置的参数进行合并：
+
+```typescript
+fxr.register({
+  // 全局静态参数
+  params: {
+    appId: 'your-app-id',
+    version: '1.0.0',
+    timestamp: () => new Date().getTime(), // 动态参数
+  },
+
+  // 请求超时设置
+  timeout: 5000,
+
+  // 请求格式设置
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
 });
 ```

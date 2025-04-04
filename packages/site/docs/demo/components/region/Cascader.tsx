@@ -1,10 +1,10 @@
 /**
  * 省市区
  */
-
+// @ts-nocheck dumi needs React import for real-time editing
+import React, { useMemo } from 'react';
 import { type ISchema } from '@formily/react';
 import { createForm, Field } from '@formily/core';
-import { useMemo } from 'react';
 import { Form, FormButtonGroup, Reset, Submit } from '@formily/antd-v5';
 import { SchemaField } from '../common/SchemaField';
 import { type Option } from './types';

@@ -1,3 +1,5 @@
+// @ts-nocheck dumi needs React import for real-time editing
+import React from 'react';
 import { type Option } from './types';
 import { mockApiBaseURL } from '@site/constant/index';
 
