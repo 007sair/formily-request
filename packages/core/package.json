@@ -1,9 +1,11 @@
 {
   "name": "formily-request",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "description": "A flexible, lightweight, non-intrusive plugin for extending formily schema request data.",
   "packageManager": "pnpm@8.10.0",
-  "author": "Long Chan",
+  "authors": [
+    "LongChan <007sair@163.com>"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/007sair/formily-request",
   "repository": {
@@ -18,33 +20,27 @@
   "source": "./src/index.ts",
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.umd.cjs"
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
     }
   },
-  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "docs": "typedoc",
-    "serve": "serve docs -p 61148"
+    "serve": "serve docs -p 61148",
+    "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
-    "@mxssfd/typedoc-theme": "^1.1.3",
-    "@types/lodash.debounce": "^4.0.9",
-    "typedoc": "^0.25.12",
-    "typedoc-plugin-missing-exports": "^2.2.0",
-    "typescript": "^5.0.2",
-    "vite": "^4.3.9",
-    "vite-plugin-dts": "^3.2.0"
+    "gh-pages": "^6.3.0",
+    "typescript": "5.4.2",
+    "vite": "^4.5.9",
+    "vite-plugin-dts": "^3.9.1"
   },
   "peerDependencies": {
     "@formily/reactive": ">=2.2.27"
-  },
-  "dependencies": {
-    "lodash.debounce": "^4.0.8"
   }
 }

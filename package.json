@@ -1,31 +1,39 @@
 {
   "name": "formily-request-monorepo",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "description": "A flexible, lightweight, non-intrusive plugin for extending formily schema request data.",
-  "author": "Long Chan",
+  "authors": [
+    "LongChan <007sair@163.com>"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/007sair/formily-request",
   "scripts": {
     "build:lib": "pnpm run --parallel -F formily-request build",
-    "build:docs": "pnpm run --parallel -F formily-request docs",
-    "build:examples": "pnpm -F examples run build-storybook",
-    "storybook": "pnpm run build:lib --watch & pnpm run --parallel -F examples storybook",
-    "build": "pnpm run build:lib && pnpm run build:docs && pnpm run build:examples"
+    "site:dev": "pnpm -F site run dev",
+    "site:build": "pnpm -F site run build",
+    "release": "changeset publish",
+    "change": "changeset",
+    "version": "changeset version",
+    "beta:start": "changeset pre enter beta",
+    "beta:end": "changeset pre exit",
+    "beta:publish": "pnpm beta:start && pnpm version && pnpm publish -r --tag beta",
+    "release:publish": "pnpm beta:end && pnpm version && pnpm publish -r"
   },
   "keywords": [
     "formily",
-    "schema",
+    "formily-request",
+    "json schema",
     "request",
     "fetch",
     "dynamic"
   ],
-  "devDependencies": {
-    "typescript": "^5.2.2"
-  },
   "dependencies": {
     "@formily/antd-v5": "^1.1.2",
     "@formily/core": "^2.2.27",
     "@formily/react": "^2.2.27",
     "@formily/reactive": "^2.2.27"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.28.1"
   }
 }

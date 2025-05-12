@@ -9,6 +9,11 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "formily-request/*": ["packages/core/src/*"],
+      "@site/*": ["packages/site/*"]
+    }
   }
 }
