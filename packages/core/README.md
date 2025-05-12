@@ -11,10 +11,10 @@ Formily Request 是一个灵活、轻量、无侵入性，扩展 json schema 配
 
 ## 版本大更新
 
-formily-request 1.0.0-beta.1 发布了！安装方式
+formily-request 1.0.0 版本已经发布，欢迎试用。
 
 ```bash
-npm install formily-request@beta
+npm install formily-request@latest
 ```
 
 更新内容，请查看 [CHANGELOG](https://007sair.github.io/formily-request/changelog)
